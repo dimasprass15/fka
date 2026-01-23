@@ -1,26 +1,65 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f9fbff;
+  --foreground: #020817;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
+  min-height: 100vh;
+  background: radial-gradient(
+    circle at top left,
+    #fff9e6 0,
+    #f3faf3 30%,
+    #eef7ff 65%,
+    #ffffff 100%
+  );
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  direction: rtl;
+}
+
+[dir="rtl"] * {
+  text-align: right;
+}
+
+[dir="ltr"] {
+  direction: ltr;
+}
+
+[dir="ltr"] * {
+  text-align: left;
+}
+
+/* RTL specific adjustments */
+[dir="rtl"] .rtl\:flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+/* Arabic font support */
+[lang="ar"] {
+  font-family: "Segoe UI", "Arial", "Tahoma", "Arabic Typesetting", sans-serif;
 }
