@@ -26,6 +26,10 @@ export const translations = {
       },
     },
     program: {
+      search: {
+        placeholder: "Cari program...",
+        empty: "Tidak ada program",
+      },
       filters: {
         qiraat: "Qira'at",
         bahasa: "Bahasa",
@@ -98,6 +102,10 @@ export const translations = {
       },
     },
     program: {
+      search: {
+        placeholder: "ابحث عن برنامج...",
+        empty: "لا يوجد برنامج",
+      },
       filters: {
         qiraat: "القراءات",
         bahasa: "اللغة",
@@ -170,6 +178,10 @@ export const translations = {
       },
     },
     program: {
+      search: {
+        placeholder: "Search programs...",
+        empty: "No programs found",
+      },
       filters: {
         qiraat: "Qira'at",
         bahasa: "Language",
