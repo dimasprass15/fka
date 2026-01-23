@@ -2,6 +2,8 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation as SwiperNavigation } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -12,12 +14,36 @@ import { translations } from "@/translations";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
+type Poster = {
+  id: number;
+  title: string;
+  subtitle: string;
+  image: string;
+  category: string;
+};
+
 export default function ProgramPage() {
   const { language, isRTL } = useLanguage();
   const t = translations[language];
+  const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [clickedPoster, setClickedPoster] = useState<Poster | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
+
+  const handlePosterClick = (e: React.MouseEvent, poster: Poster) => {
+    e.preventDefault();
+    setClickedPoster(poster);
+    // Add zoom effect
+    const target = e.currentTarget as HTMLElement;
+    target.style.transform = "scale(1.05)";
+    target.style.transition = "transform 0.2s ease-out";
+    
+    // Navigate after zoom effect
+    setTimeout(() => {
+      router.push(`/${poster.id}`);
+    }, 150);
+  };
 
   const filters = [
     { key: "qiraat", label: t.program.filters.qiraat },
@@ -170,9 +196,11 @@ export default function ProgramPage() {
                 filteredPosters.map((poster) => {
                 const categoryFilter = filters.find((f) => f.key === poster.category);
                 return (
-                  <div
+                  <Link
                     key={poster.id}
-                    className="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl shadow-lg transition-transform hover:scale-105 hover:shadow-xl"
+                    href={`/${poster.id}`}
+                    onClick={(e) => handlePosterClick(e, poster)}
+                    className="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl shadow-lg transition-transform hover:scale-105 hover:shadow-xl cursor-pointer"
                   >
                     {/* Background Image */}
                     <div className="absolute inset-0">
@@ -206,7 +234,7 @@ export default function ProgramPage() {
                       </h3>
                       <p className="text-sm text-white/90">{poster.subtitle}</p>
                     </div>
-                  </div>
+                  </Link>
                 );
               })
               )}
@@ -253,7 +281,11 @@ export default function ProgramPage() {
                       );
                       return (
                         <SwiperSlide key={poster.id}>
-                          <div className="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl shadow-lg transition-transform hover:scale-105 hover:shadow-xl">
+                          <Link
+                            href={`/${poster.id}`}
+                            onClick={(e) => handlePosterClick(e, poster)}
+                            className="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl shadow-lg transition-transform hover:scale-105 hover:shadow-xl cursor-pointer block"
+                          >
                             {/* Background Image */}
                             <div className="absolute inset-0">
                               <Image
@@ -290,7 +322,7 @@ export default function ProgramPage() {
                                 {poster.subtitle}
                               </p>
                             </div>
-                          </div>
+                          </Link>
                         </SwiperSlide>
                       );
                     })}
