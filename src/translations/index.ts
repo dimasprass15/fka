@@ -18,6 +18,13 @@ export const translations = {
         users: "Pengguna",
       },
     },
+    common: {
+      helloWorld: "Halo Dunia",
+      footer: {
+        copyright: "Copyright",
+        academy: "Fastabiqul Khairat Academy",
+      },
+    },
   },
   AR: {
     nav: {
@@ -38,6 +45,13 @@ export const translations = {
         users: "المستخدمون",
       },
     },
+    common: {
+      helloWorld: "مرحبا بالعالم",
+      footer: {
+        copyright: "حقوق النشر",
+        academy: "أكاديمية فاستبقوا الخيرات",
+      },
+    },
   },
   EN: {
     nav: {
@@ -56,6 +70,13 @@ export const translations = {
       cta: "Start Learning Now",
       stats: {
         users: "Users",
+      },
+    },
+    common: {
+      helloWorld: "Hello World",
+      footer: {
+        copyright: "Copyright",
+        academy: "Fastabiqul Khairat Academy",
       },
     },
   },
