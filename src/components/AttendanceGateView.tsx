@@ -164,7 +164,8 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
   }, [lookupPhone, phoneField.id]);
 
   const handleAnswerChange = (fieldId: string, value: string) => {
-    const sanitizedVal = sanitizeInputText(value, 200);
+    // Preserve spaces while typing so student can type multiple words in their name
+    const sanitizedVal = sanitizeInputText(value, 200, false);
     setAnswers((prev) => ({ ...prev, [fieldId]: sanitizedVal }));
 
     if (fieldId === phoneField.id) {
@@ -208,7 +209,7 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
       const rawFullName = currentStudent
         ? currentStudent.full_name
         : (nameField ? answers[nameField.id] : '') || 'Santri';
-      const studentFullName = sanitizeInputText(rawFullName, 80);
+      const studentFullName = sanitizeInputText(rawFullName, 80, true);
 
       if (!studentFullName.trim()) {
         throw new Error(
@@ -255,7 +256,7 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
 
       const otherAnswers = fields
         .filter((f) => f.id !== phoneField.id && f.id !== nameField?.id)
-        .map((f) => `${sanitizeInputText(f.label, 40)}: ${sanitizeInputText(answers[f.id] || '-', 100)}`)
+        .map((f) => `${sanitizeInputText(f.label, 40, true)}: ${sanitizeInputText(answers[f.id] || '-', 100, true)}`)
         .join(' | ');
 
       const calculatedStatus: 'hadir' | 'terlambat' =

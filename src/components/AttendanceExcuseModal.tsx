@@ -53,7 +53,7 @@ export default function AttendanceExcuseModal({
 
     try {
       const today = new Date().toISOString().split("T")[0];
-      const sanitizedReason = sanitizeInputText(reason, 300);
+      const sanitizedReason = sanitizeInputText(reason, 300, true);
 
       // Upsert record with excuse status
       const { error } = await supabase.from("attendance_records").upsert(
