@@ -104,10 +104,6 @@ export default function PustakaPage() {
                   {t.pustaka.description}
                 </p>
               </div>
-
-              <p className="text-sm sm:text-base font-bold text-emerald-800 font-arabic text-left sm:text-right shrink-0" dir="rtl">
-                المكتبة العلمية والمرئيات والصوتيات
-              </p>
             </div>
           </div>
 

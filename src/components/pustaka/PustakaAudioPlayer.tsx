@@ -65,7 +65,7 @@ export function PustakaAudioPlayer({
         </div>
         <div className="min-w-0">
           <p className="text-xs font-bold truncate text-white">{title}</p>
-          <p className="text-[10px] text-[#C9A24D] font-arabic truncate">{teacher}</p>
+          <p className={`text-[10px] text-[#C9A24D] truncate ${isAr ? "font-arabic" : ""}`}>{teacher}</p>
         </div>
       </div>
 

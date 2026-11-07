@@ -75,16 +75,9 @@ export function PustakaCard({
         </div>
 
         {/* Title */}
-        <h3 className="mb-1 text-lg font-bold text-emerald-900 group-hover:text-emerald-700 transition-colors leading-snug">
+        <h3 className="mb-2 text-lg font-bold text-emerald-900 group-hover:text-emerald-700 transition-colors leading-snug">
           {title}
         </h3>
-
-        {/* Subtitle Arab if not Arabic view */}
-        {!isAr && (
-          <p className="text-xs font-bold text-[#C9A24D] font-arabic mb-3" dir="rtl">
-            {post.title_ar}
-          </p>
-        )}
 
         {/* Excerpt */}
         {excerpt && (

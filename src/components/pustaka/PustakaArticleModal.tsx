@@ -72,15 +72,6 @@ export function PustakaArticleModal({
 
         {/* Content Body */}
         <div className="p-6 overflow-y-auto space-y-4 text-sm text-slate-700 leading-relaxed">
-          {post.title_ar && (
-            <div
-              className="p-4 rounded-xl bg-emerald-50/50 border border-emerald-100 text-center font-arabic text-lg sm:text-xl text-emerald-950 leading-loose"
-              dir="rtl"
-            >
-              {post.title_ar}
-            </div>
-          )}
-
           <div className="whitespace-pre-line text-slate-700 leading-relaxed">
             {content}
           </div>
