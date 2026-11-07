@@ -43,6 +43,9 @@ export interface AttendanceSession {
     tracking_mode?: "web_gate" | "zoom_webhook";
     og_image_url?: string;
     late_tolerance_minutes?: number;
+    open_minutes_before?: number;
+    session_duration_minutes?: number;
+    active_days?: number[];
   };
   is_active: boolean;
   created_at: string;
