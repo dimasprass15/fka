@@ -1,14 +1,80 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { supabase } from "@/lib/supabase";
+
+interface DynamicSiteSettings {
+  hero_subtitle_id?: string;
+  hero_subtitle_ar?: string;
+  hero_subtitle_en?: string;
+  hero_title_id?: string;
+  hero_title_ar?: string;
+  hero_title_en?: string;
+  hero_highlight_id?: string;
+  hero_highlight_ar?: string;
+  hero_highlight_en?: string;
+  hero_desc_id?: string;
+  hero_desc_ar?: string;
+  hero_desc_en?: string;
+  cta_whatsapp_url?: string;
+  stats_users?: string;
+  stats_teachers?: string;
+  stats_programs?: string;
+  wa_admin_number?: string;
+}
 
 export default function Home() {
   const { language, isRTL } = useLanguage();
   const t = translations[language];
+
+  const [settings, setSettings] = useState<DynamicSiteSettings | null>(null);
+
+  useEffect(() => {
+    async function fetchSiteSettings() {
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("*")
+          .eq("id", 1)
+          .maybeSingle();
+        if (data) setSettings(data as DynamicSiteSettings);
+      } catch {
+        // Graceful fallback to static translations
+      }
+    }
+    fetchSiteSettings();
+  }, []);
+
+  const isAr = language === "AR";
+  const isEn = language === "EN";
+
+  const heroSubtitle = settings
+    ? (isAr ? settings.hero_subtitle_ar : isEn ? settings.hero_subtitle_en : settings.hero_subtitle_id) || t.hero.subtitle
+    : t.hero.subtitle;
+
+  const heroTitle = settings
+    ? (isAr ? settings.hero_title_ar : isEn ? settings.hero_title_en : settings.hero_title_id) || t.hero.title
+    : t.hero.title;
+
+  const heroHighlight = settings
+    ? (isAr ? settings.hero_highlight_ar : isEn ? settings.hero_highlight_en : settings.hero_highlight_id) || t.hero.titleHighlight
+    : t.hero.titleHighlight;
+
+  const heroDesc = settings
+    ? isAr ? settings.hero_desc_ar : isEn ? settings.hero_desc_en : settings.hero_desc_id
+    : null;
+
+  const ctaUrl = settings?.cta_whatsapp_url || "https://chat.whatsapp.com/JNEM5d454vTJ5Kv4ZqdHOJ";
+  const waNumber = settings?.wa_admin_number || "6281234567890";
+
+  const statUsers = settings?.stats_users || (language === "ID" ? "1,8M+" : isAr ? "+1.8M" : "1.8M+");
+  const statTeachers = settings?.stats_teachers || "50+";
+  const statPrograms = settings?.stats_programs || "10+";
 
   return (
     <div
@@ -45,27 +111,34 @@ export default function Home() {
           }`}
         >
           <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-[#C9A24D]">
-            {t.hero.subtitle}
+            {heroSubtitle}
           </p>
           <h1 className="max-w-xl text-balance text-3xl font-semibold leading-tight tracking-tight text-emerald-900 sm:text-4xl lg:text-5xl">
-            {t.hero.title}{" "}
-            <span className="text-[#C9A24D]">{t.hero.titleHighlight}</span>
+            {heroTitle}{" "}
+            <span className="text-[#C9A24D]">{heroHighlight}</span>
           </h1>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-black sm:text-base">
-            {t.hero.descriptionPrefix}
-            <span className="font-bold">{t.hero.descriptionBold1}</span>
-            {t.hero.descriptionMiddle}
-            <span className="font-bold">{t.hero.descriptionBold2}</span>
-            {t.hero.descriptionSuffix}
-          </p>
+
+          {heroDesc ? (
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-black sm:text-base font-semibold">
+              {heroDesc}
+            </p>
+          ) : (
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-black sm:text-base">
+              {t.hero.descriptionPrefix}
+              <span className="font-bold">{t.hero.descriptionBold1}</span>
+              {t.hero.descriptionMiddle}
+              <span className="font-bold">{t.hero.descriptionBold2}</span>
+              {t.hero.descriptionSuffix}
+            </p>
+          )}
 
           {/* Store buttons */}
           <div className="mt-7 flex flex-wrap items-center gap-4">
             <a
-              href="https://chat.whatsapp.com/JNEM5d454vTJ5Kv4ZqdHOJ"
+              href={ctaUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-700/40 hover:bg-emerald-800"
+              className="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-700/40 hover:bg-emerald-800 transition-all cursor-pointer"
             >
               {t.hero.cta}
             </a>
@@ -74,17 +147,15 @@ export default function Home() {
           {/* Stats */}
           <div className="mt-8 flex flex-wrap gap-6 sm:gap-10 text-sm text-emerald-900">
             <div>
-              <p className="text-3xl font-semibold text-emerald-800">
-                {language === "ID" ? "1,8M+" : language === "AR" ? "+1.8M" : "1.8M+"}
-              </p>
+              <p className="text-3xl font-semibold text-emerald-800">{statUsers}</p>
               <p className="mt-1 text-xs text-emerald-700/80">{t.hero.stats.users}</p>
             </div>
             <div>
-              <p className="text-3xl font-semibold text-emerald-800">50+</p>
+              <p className="text-3xl font-semibold text-emerald-800">{statTeachers}</p>
               <p className="mt-1 text-xs text-emerald-700/80">{t.hero.stats.teachers}</p>
             </div>
             <div>
-              <p className="text-3xl font-semibold text-emerald-800">10+</p>
+              <p className="text-3xl font-semibold text-emerald-800">{statPrograms}</p>
               <p className="mt-1 text-xs text-emerald-700/80">{t.hero.stats.programs}</p>
             </div>
           </div>
@@ -95,10 +166,10 @@ export default function Home() {
 
       {/* Floating WhatsApp button */}
       <a
-        href="https://wa.me/6281234567890"
+        href={`https://wa.me/${waNumber}`}
         target="_blank"
         rel="noopener noreferrer"
-        className={`fixed bottom-20 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-[0_15px_40px_rgba(16,185,129,0.7)] hover:bg-emerald-600 transition-colors md:bottom-6 ${
+        className={`fixed bottom-20 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-[0_15px_40px_rgba(16,185,129,0.7)] hover:bg-emerald-600 transition-colors md:bottom-6 cursor-pointer ${
           isRTL ? "left-5" : "right-5"
         }`}
         aria-label="WhatsApp"
