@@ -18,6 +18,7 @@ import {
   StandardProgramsSection,
   type StandardProgramItem,
 } from "@/components/StandardProgramsSection";
+import { posterDefsStatic } from "@/data/staticPosters";
 import { supabase } from "@/lib/supabase";
 import type { ProgramRecord } from "@/types/program";
 
@@ -165,24 +166,7 @@ export default function ProgramPage() {
           ]
         : []);
 
-  // Build Poster Programs (Dynamic Supabase with Fallback)
-  const posterDefsStatic: Array<{
-    id: number;
-    key: keyof typeof t.program.posters;
-    image: string;
-    category: string;
-    status: "open" | "closed";
-  }> = [
-    { id: 1, key: "tahfidz", image: "/1.jpeg", category: "quran", status: "open" },
-    { id: 2, key: "fiqih", image: "/2.jpeg", category: "fiqh", status: "open" },
-    { id: 3, key: "tafsir", image: "/3.jpeg", category: "quran", status: "closed" },
-    { id: 4, key: "hadits", image: "/4.jpeg", category: "quran", status: "closed" },
-    { id: 5, key: "aqidah", image: "/5.jpeg", category: "daurah", status: "open" },
-    { id: 6, key: "bahasaArab", image: "/6.jpeg", category: "bahasa", status: "closed" },
-    { id: 7, key: "ushulFiqih", image: "/7.jpeg", category: "fiqh", status: "open" },
-    { id: 8, key: "sirah", image: "/8.jpeg", category: "daurah", status: "closed" },
-  ];
-
+  // Build Poster Programs (Dynamic Supabase with Fallback on offline error only)
   const posters: Poster[] = isLoadedFromSupabase
     ? supabasePrograms
         .filter((p) => !p.is_standard)
@@ -237,21 +221,23 @@ export default function ProgramPage() {
             infaq,
           };
         })
-    : posterDefsStatic.map((def) => {
-        const data = t.program.posters[def.key];
-        return {
-          id: def.id,
-          title: data.title,
-          subtitle: data.subtitle,
-          image: def.image,
-          category: def.category,
-          status: def.status,
-          description: data.description,
-          facilities: data.facilities,
-          requirements: data.requirements,
-          infaq: data.infaq,
-        };
-      });
+    : (!isLoading && supabasePrograms === null
+        ? posterDefsStatic.map((def) => {
+            const data = t.program.posters[def.key];
+            return {
+              id: def.id,
+              title: data.title,
+              subtitle: data.subtitle,
+              image: def.image,
+              category: def.category,
+              status: def.status,
+              description: data.description,
+              facilities: data.facilities,
+              requirements: data.requirements,
+              infaq: data.infaq,
+            };
+          })
+        : []);
 
   const q = query.trim().toLowerCase();
   const filteredPosters = posters.filter((p) => {
@@ -341,117 +327,130 @@ export default function ProgramPage() {
 
           {/* Posters - Mobile: Grid, Desktop/Tablet: Swiper */}
           <div className="relative w-full">
-            {/* Mobile Grid */}
-            <div className="grid grid-cols-2 gap-4 md:hidden">
-              {filteredPosters.length === 0 ? (
-                <div className="col-span-2 rounded-2xl border border-slate-200 bg-white/70 p-6 text-center text-sm text-slate-600">
-                  {t.program.search.empty}
-                </div>
-              ) : (
-                filteredPosters.map((poster) => {
-                  const categoryFilter = filters.find((f) => f.key === poster.category);
-                  return (
-                    <ProgramPosterCard
-                      key={poster.id}
-                      poster={poster}
-                      categoryLabel={categoryFilter?.label}
-                      isRTL={isRTL}
-                      language={language}
-                      t={t}
-                      isClosedMessageVisible={false}
-                      onPosterClick={handlePosterClick}
-                      sizes="(max-width: 768px) 50vw, 25vw"
-                    />
-                  );
-                })
-              )}
-            </div>
-
-            {/* Desktop/Tablet Swiper */}
-            <div
-              className="hidden md:block relative"
-              dir={isRTL ? "rtl" : "ltr"}
-            >
-              {filteredPosters.length === 0 ? (
-                <div className="rounded-2xl border border-slate-200 bg-white/70 p-10 text-center text-sm text-slate-600">
-                  {t.program.search.empty}
-                </div>
-              ) : (
-                <>
-                  <Swiper
-                    key={language}
-                    onSwiper={(swiper) => {
-                      swiperRef.current = swiper;
-                    }}
-                    modules={[SwiperNavigation]}
-                    navigation={{
-                      nextEl: ".swiper-button-next-custom",
-                      prevEl: ".swiper-button-prev-custom",
-                    }}
-                    slidesPerView={4}
-                    spaceBetween={24}
-                    breakpoints={{
-                      768: { slidesPerView: 2, spaceBetween: 16 },
-                      1024: { slidesPerView: 3, spaceBetween: 20 },
-                      1280: { slidesPerView: 4, spaceBetween: 24 },
-                    }}
-                    className={`!pb-12 ${isRTL ? "swiper-rtl" : ""}`}
-                  >
-                    {filteredPosters.map((poster) => {
+            {isLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full animate-pulse">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="aspect-[3/4] rounded-2xl bg-white/80 border border-emerald-100/60 shadow-sm"
+                  />
+                ))}
+              </div>
+            ) : (
+              <>
+                {/* Mobile Grid */}
+                <div className="grid grid-cols-2 gap-4 md:hidden">
+                  {filteredPosters.length === 0 ? (
+                    <div className="col-span-2 rounded-2xl border border-slate-200 bg-white/70 p-6 text-center text-sm text-slate-600">
+                      {t.program.search.empty}
+                    </div>
+                  ) : (
+                    filteredPosters.map((poster) => {
                       const categoryFilter = filters.find((f) => f.key === poster.category);
                       return (
-                        <SwiperSlide key={poster.id}>
-                          <ProgramPosterCard
-                            poster={poster}
-                            categoryLabel={categoryFilter?.label}
-                            isRTL={isRTL}
-                            language={language}
-                            t={t}
-                            isClosedMessageVisible={false}
-                            onPosterClick={handlePosterClick}
-                            sizes="(max-width: 1024px) 25vw, 25vw"
-                          />
-                        </SwiperSlide>
+                        <ProgramPosterCard
+                          key={poster.id}
+                          poster={poster}
+                          categoryLabel={categoryFilter?.label}
+                          isRTL={isRTL}
+                          language={language}
+                          t={t}
+                          isClosedMessageVisible={false}
+                          onPosterClick={handlePosterClick}
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                        />
                       );
-                    })}
-                  </Swiper>
+                    })
+                  )}
+                </div>
 
-                  {/* Navigation Arrows */}
-                  <button
-                    className={`swiper-button-prev-custom absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all hover:bg-white cursor-pointer ${
-                      isRTL ? "right-0 translate-x-4" : "left-0 -translate-x-4"
-                    }`}
-                    onClick={() => swiperRef.current?.slidePrev()}
-                    aria-label="Previous"
-                  >
-                    <svg
-                      className={`h-6 w-6 text-emerald-700 ${isRTL ? "rotate-180" : ""}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <button
-                    className={`swiper-button-next-custom absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all hover:bg-white cursor-pointer ${
-                      isRTL ? "left-0 -translate-x-4" : "right-0 translate-x-4"
-                    }`}
-                    onClick={() => swiperRef.current?.slideNext()}
-                    aria-label="Next"
-                  >
-                    <svg
-                      className={`h-6 w-6 text-emerald-700 ${isRTL ? "rotate-180" : ""}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </>
-              )}
-            </div>
+                {/* Desktop/Tablet Swiper */}
+                <div
+                  className="hidden md:block relative"
+                  dir={isRTL ? "rtl" : "ltr"}
+                >
+                  {filteredPosters.length === 0 ? (
+                    <div className="rounded-2xl border border-slate-200 bg-white/70 p-10 text-center text-sm text-slate-600">
+                      {t.program.search.empty}
+                    </div>
+                  ) : (
+                    <>
+                      <Swiper
+                        key={language}
+                        onSwiper={(swiper) => {
+                          swiperRef.current = swiper;
+                        }}
+                        modules={[SwiperNavigation]}
+                        navigation={{
+                          nextEl: ".swiper-button-next-custom",
+                          prevEl: ".swiper-button-prev-custom",
+                        }}
+                        slidesPerView={4}
+                        spaceBetween={24}
+                        breakpoints={{
+                          768: { slidesPerView: 2, spaceBetween: 16 },
+                          1024: { slidesPerView: 3, spaceBetween: 20 },
+                          1280: { slidesPerView: 4, spaceBetween: 24 },
+                        }}
+                        className={`!pb-12 ${isRTL ? "swiper-rtl" : ""}`}
+                      >
+                        {filteredPosters.map((poster) => {
+                          const categoryFilter = filters.find((f) => f.key === poster.category);
+                          return (
+                            <SwiperSlide key={poster.id}>
+                              <ProgramPosterCard
+                                poster={poster}
+                                categoryLabel={categoryFilter?.label}
+                                isRTL={isRTL}
+                                language={language}
+                                t={t}
+                                isClosedMessageVisible={false}
+                                onPosterClick={handlePosterClick}
+                                sizes="(max-width: 1024px) 25vw, 25vw"
+                              />
+                            </SwiperSlide>
+                          );
+                        })}
+                      </Swiper>
+
+                      {/* Navigation Arrows */}
+                      <button
+                        className={`swiper-button-prev-custom absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all hover:bg-white cursor-pointer ${
+                          isRTL ? "right-0 translate-x-4" : "left-0 -translate-x-4"
+                        }`}
+                        onClick={() => swiperRef.current?.slidePrev()}
+                        aria-label="Previous"
+                      >
+                        <svg
+                          className={`h-6 w-6 text-emerald-700 ${isRTL ? "rotate-180" : ""}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        className={`swiper-button-next-custom absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all hover:bg-white cursor-pointer ${
+                          isRTL ? "left-0 -translate-x-4" : "right-0 translate-x-4"
+                        }`}
+                        onClick={() => swiperRef.current?.slideNext()}
+                        aria-label="Next"
+                      >
+                        <svg
+                          className={`h-6 w-6 text-emerald-700 ${isRTL ? "rotate-180" : ""}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </main>
