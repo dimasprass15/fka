@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { X, Check, CheckCircle2, MessageCircle, Send, Loader2 } from "lucide-react";
 import { translations } from "@/translations";
 import { Poster } from "@/components/ProgramPosterCard";
@@ -39,11 +38,9 @@ export default function ProgramDetailModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Reset tab and form state whenever a new poster is opened
+  // Manage body scroll overflow when modal is opened/closed
   useEffect(() => {
     if (isOpen) {
-      setActiveTab("description");
-      setSubmitSuccess(false);
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -51,7 +48,7 @@ export default function ProgramDetailModal({
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [isOpen, poster]);
+  }, [isOpen]);
 
   // Handle ESC key to close
   useEffect(() => {

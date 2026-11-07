@@ -27,12 +27,15 @@ export function AttendanceScheduleNotice({
   lang = 'ID',
   onAutoUnlock,
 }: AttendanceScheduleNoticeProps) {
+  const [prevSecondsUntilOpen, setPrevSecondsUntilOpen] = useState(schedule.secondsUntilOpen);
   const [secondsLeft, setSecondsLeft] = useState<number>(schedule.secondsUntilOpen);
-  const isEn = lang === 'EN';
 
-  useEffect(() => {
+  if (schedule.secondsUntilOpen !== prevSecondsUntilOpen) {
+    setPrevSecondsUntilOpen(schedule.secondsUntilOpen);
     setSecondsLeft(schedule.secondsUntilOpen);
-  }, [schedule.secondsUntilOpen]);
+  }
+
+  const isEn = lang === 'EN';
 
   useEffect(() => {
     if (schedule.status !== 'beforeOpen' || secondsLeft <= 0) return;
