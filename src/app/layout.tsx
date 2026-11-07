@@ -11,18 +11,25 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Fastabiqul Khairat Academy",
-    default: "Fastabiqul Khairat Academy",
+    template: "%s | أكاديمية فاستبقوا الخيرات",
+    default: "أكاديمية فاستبقوا الخيرات | Fastabiqul Khairat Academy",
   },
-  description: "Platform Belajar Quran dan Ilmu Syariah Islam Bersanad",
-  keywords: ["Belajar Quran", "Ilmu Syariah", "Sanad", "Timur Tengah", "Fastabiqul Khairat"],
+  description: "صرح تعليمي قرآني رائد لتعليم القرآن الكريم وعلومه بالقراءات المتواترة والعلوم الشرعية بالسند المتصل",
+  keywords: [
+    "أكاديمية فاستبقوا الخيرات",
+    "تعليم القرآن",
+    "السند المتصل",
+    "القراءات العشر",
+    "العلوم الشرعية",
+    "Fastabiqul Khairat",
+  ],
   authors: [{ name: "Fastabiqul Khairat Academy" }],
   openGraph: {
-    title: "Fastabiqul Khairat Academy",
-    description: "Platform Belajar Quran dan Ilmu Syariah Islam Bersanad",
-    url: "https://fastabiqulkhairat.academy",
-    siteName: "Fastabiqul Khairat Academy",
-    locale: "id_ID",
+    title: "أكاديمية فاستبقوا الخيرات | Fastabiqul Khairat Academy",
+    description: "صرح تعليمي قرآني رائد لتعليم القرآن الكريم وعلومه بالقراءات المتواترة والعلوم الشرعية بالسند المتصل",
+    url: "https://fastabiq.site",
+    siteName: "أكاديمية فاستبقوا الخيرات",
+    locale: "ar_SA",
     type: "website",
   },
   robots: {
@@ -42,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" dir="ltr">
+    <html lang="ar" dir="rtl">
       <body
         className={`${montserrat.variable} antialiased`}
       >

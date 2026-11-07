@@ -158,12 +158,12 @@ export default function PosterDetailView({ id }: PosterDetailViewProps) {
 
   if (!poster) {
     return (
-      <div className={`min-h-screen bg-transparent text-slate-950 ${isRTL ? "rtl" : "ltr"}`}>
+      <div className={`min-h-screen bg-transparent text-slate-950 ${isRTL ? "rtl font-arabic" : "ltr"}`}>
         <Navigation />
         <main className="mx-auto flex min-h-[calc(100vh-64px)] max-w-6xl flex-col items-center justify-center px-4 py-20">
-          <h1 className="mb-4 text-2xl font-semibold text-slate-900">Program tidak ditemukan</h1>
+          <h1 className="mb-4 text-2xl font-semibold text-slate-900">{t.program.detail.notFound}</h1>
           <Link href="/program" className="text-emerald-700 hover:text-emerald-800 underline">
-            Kembali ke Program
+            {t.program.detail.backToProgram}
           </Link>
         </main>
         <Footer />
@@ -174,7 +174,7 @@ export default function PosterDetailView({ id }: PosterDetailViewProps) {
   const categoryFilter = filters.find((f) => f.key === poster.category);
 
   return (
-    <div className={`min-h-screen bg-transparent text-slate-950 ${isRTL ? "rtl" : "ltr"}`}>
+    <div className={`min-h-screen bg-transparent text-slate-950 ${isRTL ? "rtl font-arabic" : "ltr"}`}>
       <Navigation />
       <main
         className={`mx-auto flex min-h-[calc(100vh-64px)] max-w-7xl flex-col gap-8 px-4 pb-24 pt-6 md:flex-row md:items-start md:gap-12 md:px-6 md:pt-8 lg:px-8 lg:pt-10 ${

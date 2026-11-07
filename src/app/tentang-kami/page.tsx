@@ -22,15 +22,15 @@ export default function TentangKamiPage() {
     });
   }, []);
 
-  // Memecah teks misi menjadi array, atau fallback ke default
-  // Menangani newline asli atau user yang mengetik "\n" secara manual
-  const missionItems = dbData?.misi 
+  // Hanya gunakan dbData untuk bahasa Indonesia jika tersedia, selain itu gunakan i18n
+  const isCustomLang = language !== "ID";
+
+  const missionItems = (!isCustomLang && dbData?.misi)
     ? dbData.misi.split(/\\n|\n/).map(i => i.trim()).filter(i => i !== '') 
     : t.about.mission.items;
   
-  // Memparsing JSON keunggulan, atau fallback ke default
   let featureItems = t.about.features.items;
-  if (dbData?.keunggulan) {
+  if (!isCustomLang && dbData?.keunggulan) {
     try {
       const parsed = JSON.parse(dbData.keunggulan);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -47,7 +47,7 @@ export default function TentangKamiPage() {
   return (
     <div
       className={`min-h-screen bg-transparent text-slate-950 ${
-        isRTL ? "rtl" : "ltr"
+        isRTL ? "rtl font-arabic" : "ltr"
       }`}
     >
       <Navigation />
@@ -71,14 +71,14 @@ export default function TentangKamiPage() {
           <div className="space-y-12">
             {/* Description */}
             <section>
-              {loading ? (
+              {loading && !isCustomLang ? (
                 <div className="flex items-center gap-2 text-emerald-600">
                   <Loader2 className="h-5 w-5 animate-spin" />
                   <span className="text-sm">Memuat data...</span>
                 </div>
               ) : (
                 <p className="text-lg leading-relaxed text-slate-700 md:text-xl whitespace-pre-wrap">
-                  {dbData?.description || t.about.description}
+                  {(!isCustomLang && dbData?.description) || t.about.description}
                 </p>
               )}
             </section>
@@ -90,7 +90,7 @@ export default function TentangKamiPage() {
                   {t.about.vision.title}
                 </h2>
                 <p className="leading-relaxed text-emerald-800/80 whitespace-pre-wrap">
-                  {dbData?.visi || t.about.vision.description}
+                  {(!isCustomLang && dbData?.visi) || t.about.vision.description}
                 </p>
               </div>
               <div className="rounded-3xl bg-white border border-slate-100 p-8 shadow-sm">

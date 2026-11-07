@@ -26,11 +26,16 @@ export default function KontakKamiPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const title = language === "AR" ? "*رسالة استفسار من الموقع الإلكتروني*" : language === "EN" ? "*Inquiry from Website*" : "*Pesan dari Website*";
+    const nameLabel = language === "AR" ? "الاسم" : language === "EN" ? "Name" : "Nama";
+    const emailLabel = language === "AR" ? "البريد الإلكتروني" : language === "EN" ? "Email" : "Email";
+    const msgLabel = language === "AR" ? "الرسالة" : language === "EN" ? "Message" : "Pesan";
+
     const message = [
-      `*Pesan dari Website*`,
-      `Nama: ${formData.name}`,
-      `Email: ${formData.email}`,
-      `Pesan: ${formData.message}`,
+      title,
+      `${nameLabel}: ${formData.name}`,
+      `${emailLabel}: ${formData.email}`,
+      `${msgLabel}: ${formData.message}`,
     ].join("\n");
 
     const encodedMessage = encodeURIComponent(message);
@@ -42,7 +47,7 @@ export default function KontakKamiPage() {
   return (
     <div
       className={`min-h-screen bg-transparent text-slate-950 ${
-        isRTL ? "rtl" : "ltr"
+        isRTL ? "rtl font-arabic" : "ltr"
       }`}
     >
       <Navigation />

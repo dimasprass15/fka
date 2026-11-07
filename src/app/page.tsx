@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div
       className={`min-h-screen bg-transparent text-slate-950 ${
-        isRTL ? "rtl" : "ltr"
+        isRTL ? "rtl font-arabic" : "ltr"
       }`}
     >
       <Navigation />
