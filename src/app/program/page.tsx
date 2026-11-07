@@ -13,6 +13,7 @@ import { translations } from "@/translations";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ProgramPosterCard, { Poster } from "@/components/ProgramPosterCard";
+import ProgramDetailModal from "@/components/ProgramDetailModal";
 
 export default function ProgramPage() {
   const { language, isRTL } = useLanguage();
@@ -20,24 +21,12 @@ export default function ProgramPage() {
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [showClosedMessageId, setShowClosedMessageId] = useState<number | null>(null);
+  const [selectedPoster, setSelectedPoster] = useState<Poster | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
 
   const handlePosterClick = (e: React.MouseEvent, poster: Poster) => {
     e.preventDefault();
-    if (poster.status === "closed") {
-      setShowClosedMessageId(poster.id);
-      setTimeout(() => setShowClosedMessageId(null), 2000);
-      return;
-    }
-
-    const target = e.currentTarget as HTMLElement;
-    target.style.transform = "scale(1.05)";
-    target.style.transition = "transform 0.2s ease-out";
-
-    setTimeout(() => {
-      router.push(`/program/${poster.id}`);
-    }, 150);
+    setSelectedPoster(poster);
   };
 
   const handleStandardProgramClick = (e: React.MouseEvent, href: string) => {
@@ -61,72 +50,38 @@ export default function ProgramPage() {
     { key: "daurah", label: t.program.filters.daurah },
   ];
 
-  const posters: Poster[] = [
-    {
-      id: 1,
-      title: t.program.posters.tahfidz.title,
-      subtitle: t.program.posters.tahfidz.subtitle,
-      image: "/1.jpeg",
-      category: "quran",
-      status: "open",
-    },
-    {
-      id: 2,
-      title: t.program.posters.fiqih.title,
-      subtitle: t.program.posters.fiqih.subtitle,
-      image: "/2.jpeg",
-      category: "fiqh",
-      status: "open",
-    },
-    {
-      id: 3,
-      title: t.program.posters.tafsir.title,
-      subtitle: t.program.posters.tafsir.subtitle,
-      image: "/3.jpeg",
-      category: "quran",
-      status: "closed",
-    },
-    {
-      id: 4,
-      title: t.program.posters.hadits.title,
-      subtitle: t.program.posters.hadits.subtitle,
-      image: "/4.jpeg",
-      category: "quran",
-      status: "closed",
-    },
-    {
-      id: 5,
-      title: t.program.posters.aqidah.title,
-      subtitle: t.program.posters.aqidah.subtitle,
-      image: "/5.jpeg",
-      category: "daurah",
-      status: "open",
-    },
-    {
-      id: 6,
-      title: t.program.posters.bahasaArab.title,
-      subtitle: t.program.posters.bahasaArab.subtitle,
-      image: "/6.jpeg",
-      category: "bahasa",
-      status: "closed",
-    },
-    {
-      id: 7,
-      title: t.program.posters.ushulFiqih.title,
-      subtitle: t.program.posters.ushulFiqih.subtitle,
-      image: "/7.jpeg",
-      category: "fiqh",
-      status: "open",
-    },
-    {
-      id: 8,
-      title: t.program.posters.sirah.title,
-      subtitle: t.program.posters.sirah.subtitle,
-      image: "/8.jpeg",
-      category: "daurah",
-      status: "closed",
-    },
+  const posterDefs: Array<{
+    id: number;
+    key: keyof typeof t.program.posters;
+    image: string;
+    category: string;
+    status: "open" | "closed";
+  }> = [
+    { id: 1, key: "tahfidz", image: "/1.jpeg", category: "quran", status: "open" },
+    { id: 2, key: "fiqih", image: "/2.jpeg", category: "fiqh", status: "open" },
+    { id: 3, key: "tafsir", image: "/3.jpeg", category: "quran", status: "closed" },
+    { id: 4, key: "hadits", image: "/4.jpeg", category: "quran", status: "closed" },
+    { id: 5, key: "aqidah", image: "/5.jpeg", category: "daurah", status: "open" },
+    { id: 6, key: "bahasaArab", image: "/6.jpeg", category: "bahasa", status: "closed" },
+    { id: 7, key: "ushulFiqih", image: "/7.jpeg", category: "fiqh", status: "open" },
+    { id: 8, key: "sirah", image: "/8.jpeg", category: "daurah", status: "closed" },
   ];
+
+  const posters: Poster[] = posterDefs.map((def) => {
+    const data = t.program.posters[def.key];
+    return {
+      id: def.id,
+      title: data.title,
+      subtitle: data.subtitle,
+      image: def.image,
+      category: def.category,
+      status: def.status,
+      description: data.description,
+      facilities: data.facilities,
+      requirements: data.requirements,
+      infaq: data.infaq,
+    };
+  });
 
   const q = query.trim().toLowerCase();
   const filteredPosters = posters.filter((p) => {
@@ -206,7 +161,7 @@ export default function ProgramPage() {
                   key={prog.id}
                   href={prog.href}
                   onClick={(e) => handleStandardProgramClick(e, prog.href)}
-                  className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-white p-6 shadow-md transition-all hover:-translate-y-1 hover:shadow-xl group block"
+                  className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-white p-6 shadow-md transition-all hover:-translate-y-1 hover:shadow-xl group block cursor-pointer"
                 >
                   <div className="absolute top-0 left-0 w-1 h-full bg-[#C9A24D] transition-all group-hover:w-full group-hover:opacity-10" />
                   <div className="relative z-10">
@@ -219,6 +174,7 @@ export default function ProgramPage() {
             </div>
           </div>
 
+          {/* Section Divider */}
           <div className="flex items-center gap-4 mb-6">
             <div className="h-px flex-1 bg-slate-200" />
             <h2 className="text-lg font-medium text-slate-500">
@@ -227,7 +183,7 @@ export default function ProgramPage() {
             <div className="h-px flex-1 bg-slate-200" />
           </div>
 
-          {/* Search */}
+          {/* Search Input */}
           <div className="mb-6 w-full">
             <input
               value={query}
@@ -239,7 +195,7 @@ export default function ProgramPage() {
             />
           </div>
 
-          {/* Filter Buttons */}
+          {/* Filter Chips */}
           <div className="mb-8 w-full">
             <div
               className={`flex flex-wrap gap-3 overflow-x-auto pb-2 ${
@@ -252,7 +208,7 @@ export default function ProgramPage() {
                   onClick={() =>
                     setActiveFilter(activeFilter === filter.key ? null : filter.key)
                   }
-                  className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-medium transition-all ${
+                  className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-medium transition-all cursor-pointer ${
                     activeFilter === filter.key
                       ? "bg-[#C9A24D] text-white shadow-md"
                       : "bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300"
@@ -282,7 +238,7 @@ export default function ProgramPage() {
                       categoryLabel={categoryFilter?.label}
                       isRTL={isRTL}
                       t={t}
-                      isClosedMessageVisible={showClosedMessageId === poster.id}
+                      isClosedMessageVisible={false}
                       onPosterClick={handlePosterClick}
                       sizes="(max-width: 768px) 50vw, 25vw"
                     />
@@ -330,7 +286,7 @@ export default function ProgramPage() {
                             categoryLabel={categoryFilter?.label}
                             isRTL={isRTL}
                             t={t}
-                            isClosedMessageVisible={showClosedMessageId === poster.id}
+                            isClosedMessageVisible={false}
                             onPosterClick={handlePosterClick}
                             sizes="(max-width: 1024px) 25vw, 25vw"
                           />
@@ -341,7 +297,7 @@ export default function ProgramPage() {
 
                   {/* Navigation Arrows */}
                   <button
-                    className={`swiper-button-prev-custom absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all hover:bg-white ${
+                    className={`swiper-button-prev-custom absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all hover:bg-white cursor-pointer ${
                       isRTL ? "right-0 translate-x-4" : "left-0 -translate-x-4"
                     }`}
                     onClick={() => swiperRef.current?.slidePrev()}
@@ -357,7 +313,7 @@ export default function ProgramPage() {
                     </svg>
                   </button>
                   <button
-                    className={`swiper-button-next-custom absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all hover:bg-white ${
+                    className={`swiper-button-next-custom absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all hover:bg-white cursor-pointer ${
                       isRTL ? "left-0 -translate-x-4" : "right-0 translate-x-4"
                     }`}
                     onClick={() => swiperRef.current?.slideNext()}
@@ -378,6 +334,21 @@ export default function ProgramPage() {
           </div>
         </div>
       </main>
+
+      {/* Program Detail & Instant Registration Modal (Zero-Hop) */}
+      <ProgramDetailModal
+        poster={selectedPoster}
+        isOpen={selectedPoster !== null}
+        onClose={() => setSelectedPoster(null)}
+        isRTL={isRTL}
+        language={language}
+        t={t}
+        categoryLabel={
+          selectedPoster
+            ? filters.find((f) => f.key === selectedPoster.category)?.label
+            : undefined
+        }
+      />
 
       <Footer />
     </div>
