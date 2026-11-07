@@ -51,32 +51,48 @@ export default function PresensiPrivatePortalPage() {
             بوابة الدخول الخاصة بالطلاب المسجلين
           </p>
 
-          {/* Information & Privacy Note */}
-          <div className="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-start space-y-3">
+          {/* Information & Privacy Note with Dual Language (ID & AR) */}
+          <div className="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-start space-y-3.5">
             <div className="flex items-start gap-2.5">
               <IoShieldCheckmark className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
-              <p className="text-xs text-slate-700 leading-relaxed font-medium">
-                Laman presensi Fastabiqul Khairat Academy bersifat tertutup dan hanya diperuntukkan bagi santri yang telah terdaftar resmi.
-              </p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-slate-700 leading-relaxed font-semibold">
+                  Laman presensi Fastabiqul Khairat Academy bersifat tertutup dan hanya diperuntukkan bagi santri yang telah terdaftar resmi.
+                </p>
+                <p className="text-[11px] text-slate-500 font-arabic leading-relaxed mt-1" dir="rtl">
+                  صفحة تسجيل الحضور لأكاديمية فاستبق الخيرات خاصة ومخصصة فقط للطلاب المسجلين رسمياً.
+                </p>
+              </div>
             </div>
-            <div className="flex items-start gap-2.5 pt-2 border-t border-slate-200/60">
+
+            <div className="flex items-start gap-2.5 pt-2.5 border-t border-slate-200/60">
               <IoInformationCircleOutline className="h-4 w-4 text-indigo-600 mt-0.5 shrink-0" />
-              <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                Tautan presensi lengkap beserta akses ruang Zoom dibagikan secara berkala di grup WhatsApp resmi halaqah masing-masing santri. Silakan gunakan tautan lengkap yang Anda terima di grup.
-              </p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Tautan presensi lengkap beserta akses ruang Zoom dibagikan secara berkala di grup WhatsApp resmi halaqah masing-masing santri. Silakan gunakan tautan lengkap yang Anda terima di grup.
+                </p>
+                <p className="text-[11px] text-slate-500 font-arabic leading-relaxed mt-1" dir="rtl">
+                  يتم إرسال روابط الحضور المباشرة مع رابط الزوم دورياً في مجموعات الواتساب الرسمية لكل حلقة. يُرجى استخدام الرابط الكامل المرسل في مجموعتكم.
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* WhatsApp Admin Help Button */}
+          {/* WhatsApp Admin Help Button with Arabic Subtitle */}
           <div className="mt-6">
             <a
               href="https://wa.me/6281234567890?text=Assalamu'alaikum%20Admin%20FKA,%20saya%20santri%20terdaftar%20ingin%20menanyakan%20tautan%20presensi%20halaqah%20saya."
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 shadow-md shadow-emerald-600/20 transition-all text-xs sm:text-sm cursor-pointer group"
+              className="w-full flex flex-col items-center justify-center rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 sm:py-3.5 px-4 shadow-md shadow-emerald-600/20 transition-all cursor-pointer group"
             >
-              <IoLogoWhatsapp className="h-4 w-4 shrink-0 text-white" />
-              <span>Bantuan Presensi via WhatsApp Admin</span>
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold">
+                <IoLogoWhatsapp className="h-4 w-4 shrink-0 text-white" />
+                <span>Bantuan Presensi via WhatsApp Admin</span>
+              </div>
+              <span className="text-[11px] font-normal text-emerald-100 font-arabic mt-0.5">
+                لطلب المساعدة عبر واتساب الإدارة
+              </span>
             </a>
           </div>
         </div>
