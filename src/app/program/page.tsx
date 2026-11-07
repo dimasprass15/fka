@@ -39,7 +39,7 @@ export default function ProgramPage() {
           .eq("is_active", true)
           .order("sort_order", { ascending: true });
 
-        if (!error && data && data.length > 0 && isMounted) {
+        if (!error && data && isMounted) {
           setSupabasePrograms(data as ProgramRecord[]);
         }
       } catch (e) {
@@ -103,10 +103,12 @@ export default function ProgramPage() {
     }
   };
 
+  // Check if Supabase loaded successfully
+  const isLoadedFromSupabase = supabasePrograms !== null;
+
   // Build Standard Programs List (Dynamic Supabase with Fallback)
-  const hasDynamicStandards = supabasePrograms && supabasePrograms.some((p) => p.is_standard);
-  const standardProgramsList = hasDynamicStandards
-    ? supabasePrograms!
+  const standardProgramsList = isLoadedFromSupabase
+    ? supabasePrograms
         .filter((p) => p.is_standard)
         .map((p) => {
           const title =
@@ -155,7 +157,6 @@ export default function ProgramPage() {
       ];
 
   // Build Poster Programs (Dynamic Supabase with Fallback)
-  const hasDynamicFlyers = supabasePrograms && supabasePrograms.some((p) => !p.is_standard);
   const posterDefsStatic: Array<{
     id: number;
     key: keyof typeof t.program.posters;
@@ -173,8 +174,8 @@ export default function ProgramPage() {
     { id: 8, key: "sirah", image: "/8.jpeg", category: "daurah", status: "closed" },
   ];
 
-  const posters: Poster[] = hasDynamicFlyers
-    ? supabasePrograms!
+  const posters: Poster[] = isLoadedFromSupabase
+    ? supabasePrograms
         .filter((p) => !p.is_standard)
         .map((p) => {
           const title =
