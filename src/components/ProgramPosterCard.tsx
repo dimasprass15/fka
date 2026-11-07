@@ -20,6 +20,7 @@ interface ProgramPosterCardProps {
   poster: Poster;
   categoryLabel?: string;
   isRTL: boolean;
+  language?: "AR" | "ID" | "EN";
   t: (typeof translations)["AR"];
   isClosedMessageVisible?: boolean;
   onPosterClick: (e: React.MouseEvent, poster: Poster) => void;
@@ -30,6 +31,7 @@ export default function ProgramPosterCard({
   poster,
   categoryLabel,
   isRTL,
+  language = "ID",
   t,
   isClosedMessageVisible = false,
   onPosterClick,
@@ -120,7 +122,11 @@ export default function ProgramPosterCard({
         <div className="mt-3 pt-2.5 border-t border-white/20 flex items-center justify-between text-xs">
           <span className="font-bold text-[#F3C465]">{poster.infaq}</span>
           <span className="text-emerald-300 font-semibold group-hover:text-white transition">
-            {isRTL ? "التفاصيل والتسجيل ←" : "Lihat & Daftar →"}
+            {isRTL
+              ? "التفاصيل والتسجيل ←"
+              : language === "EN"
+              ? "View & Register →"
+              : "Lihat & Daftar →"}
           </span>
         </div>
       </div>

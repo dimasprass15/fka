@@ -7,60 +7,79 @@ import {
   IoShieldCheckmark,
   IoLogoWhatsapp,
   IoInformationCircleOutline,
-  IoGlobeOutline,
 } from 'react-icons/io5';
+import { ID as FlagID, SA as FlagSA, GB as FlagGB } from 'country-flag-icons/react/3x2';
 
-type Language = 'AR' | 'ID' | 'EN';
+type Language = 'ID' | 'EN' | 'AR';
 
 export default function PresensiPrivatePortalPage() {
-  const [lang, setLang] = useState<Language>('AR');
+  const [lang, setLang] = useState<Language>('ID');
   const isAr = lang === 'AR';
   const isEn = lang === 'EN';
 
-  const content = {
-    AR: {
-      badge: 'بوابة خاصة للطلاب المسجلين',
-      title: 'خاص بالطلاب المسجلين رسمياً',
-      subtitle: 'أكاديمية فاستبقوا الخيرات',
-      info1:
-        'بوابة تسجيل الحضور لأكاديمية فاستبقوا الخيرات خاصة ومخصصة فقط للطلاب المسجلين في الحلقات العلمية.',
-      info2:
-        'يتم إرسال روابط الحضور المباشرة مع رابط غرفة الزوم دورياً في مجموعات الواتساب الرسمية لكل حلقة. يُرجى الدخول عبر الرابط المرسل في مجموعتكم.',
-      waBtn: 'طلب المساعدة عبر واتساب الإدارة',
-      waSub: 'تواصل مباشرة مع المشرف عبر واتساب',
-      waMessage:
-        "السلام%20عليكم%20ورحمة%20الله،%20أنا%20طالب%20مسجل%20أود%20الاستفسار%20عن%20رابط%20حضور%20الحلقة",
-      copyright: 'جميع الحقوق محفوظة لأكاديمية فاستبقوا الخيرات',
+  const strings = {
+    badge: {
+      primary: isEn
+        ? 'Private Access Only'
+        : isAr
+        ? 'بوابة خاصة للطلاب المسجلين'
+        : 'Akses Tertutup (Private Access)',
+      ar: 'بوابة خاصة للطلاب المسجلين',
     },
-    ID: {
-      badge: 'Akses Tertutup (Private Access)',
-      title: 'Akses Khusus Santri Terdaftar',
-      subtitle: 'Fastabiqul Khairat Academy',
-      info1:
-        'Laman presensi Fastabiqul Khairat Academy bersifat tertutup dan hanya diperuntukkan bagi santri yang telah terdaftar resmi.',
-      info2:
-        'Tautan presensi lengkap beserta akses ruang Zoom dibagikan secara berkala di grup WhatsApp resmi halaqah masing-masing santri. Silakan gunakan tautan lengkap yang Anda terima di grup.',
-      waBtn: 'Bantuan Presensi via WhatsApp Admin',
-      waSub: 'Hubungi admin jika Anda belum menerima tautan',
-      waMessage:
-        "Assalamu'alaikum%20Admin%20FKA,%20saya%20santri%20terdaftar%20ingin%20menanyakan%20tautan%20presensi%20halaqah%20saya.",
-      copyright: 'Hak Cipta Dilindungi Fastabiqul Khairat Academy',
+    title: {
+      primary: isEn
+        ? 'Registered Students Access Only'
+        : isAr
+        ? 'خاص بالطلاب المسجلين رسمياً'
+        : 'Akses Khusus Santri Terdaftar',
+      ar: 'بوابة الدخول الخاصة بالطلاب المسجلين رسمياً',
     },
-    EN: {
-      badge: 'Private Student Access',
-      title: 'Registered Students Only',
-      subtitle: 'Fastabiqul Khairat Academy',
-      info1:
-        'Fastabiqul Khairat Academy attendance portal is private and restricted to officially registered students.',
-      info2:
-        'Direct attendance links along with Zoom access are distributed periodically in official WhatsApp groups for each halaqah. Please use the complete link you received in your group.',
-      waBtn: 'Attendance Help via WhatsApp Admin',
-      waSub: 'Contact admin if you have not received your link',
-      waMessage:
-        "Assalamu'alaikum%20Admin,%20I%20am%20a%20registered%20student%20inquiring%20about%20my%20halaqah%20attendance%20link.",
-      copyright: 'All rights reserved by Fastabiqul Khairat Academy',
+    subtitle: {
+      primary: isEn
+        ? 'This attendance portal is private and restricted to enrolled students.'
+        : isAr
+        ? 'هذه البوابة مخصصة حصرياً للطلاب المسجلين في الحلقات العلمية.'
+        : 'Laman presensi ini bersifat tertutup khusus santri terdaftar.',
+      ar: 'هذه البوابة مخصصة حصرياً للطلاب المسجلين في الحلقات العلمية',
     },
-  }[lang];
+    info1: {
+      primary: isEn
+        ? 'Fastabiqul Khairat Academy attendance portal is private and restricted to officially registered students.'
+        : isAr
+        ? 'صفحة تسجيل الحضور لأكاديمية فاستبقوا الخيرات خاصة ومخصصة فقط للطلاب المسجلين رسمياً في الحلقات العلمية.'
+        : 'Laman presensi Fastabiqul Khairat Academy bersifat tertutup dan hanya diperuntukkan bagi santri yang telah terdaftar resmi.',
+      ar: 'صفحة تسجيل الحضور لأكاديمية فاستبقوا الخيرات خاصة ومخصصة فقط للطلاب المسجلين رسمياً في الحلقات العلمية.',
+    },
+    info2: {
+      primary: isEn
+        ? 'Complete attendance links along with Zoom room access are distributed periodically in official WhatsApp groups for each halaqah. Please use the complete link you received in your group.'
+        : isAr
+        ? 'يتم إرسال روابط الحضور المباشرة مع رابط الغرفة الافتراضية زووم دورياً في مجموعات الواتساب الرسمية لكل حلقة. يُرجى الدخول عبر الرابط المرسل في مجموعتكم.'
+        : 'Tautan presensi lengkap beserta akses ruang Zoom dibagikan secara berkala di grup WhatsApp resmi halaqah masing-masing santri. Silakan gunakan tautan lengkap yang Anda terima di grup.',
+      ar: 'يتم إرسال روابط الحضور المباشرة مع رابط غرفة الزوم دورياً في مجموعات الواتساب الرسمية لكل حلقة. يُرجى الدخول عبر الرابط المرسل في مجموعتكم.',
+    },
+    waBtn: {
+      primary: isEn
+        ? 'Attendance Help via WhatsApp Admin'
+        : isAr
+        ? 'طلب المساعدة عبر واتساب الإدارة'
+        : 'Bantuan Presensi via WhatsApp Admin',
+      ar: 'لطلب المساعدة والاستفسار عبر واتساب الإدارة',
+      message: isEn
+        ? "Assalamu'alaikum%20Admin%20FKA,%20I%20am%20an%20enrolled%20student%20inquiring%20about%20my%20halaqah%20attendance%20link."
+        : isAr
+        ? "السلام%20عليكم%20ورحمة%20الله،%20أنا%20طالب%20مسجل%20أود%20الاستفسار%20عن%20رابط%20حضور%20الحلقة."
+        : "Assalamu'alaikum%20Admin%20FKA,%20saya%20santri%20terdaftar%20ingin%20menanyakan%20tautan%20presensi%20halaqah%20saya.",
+    },
+    footer: {
+      primary: isEn
+        ? 'Fastabiqul Khairat Academy • All rights reserved'
+        : isAr
+        ? 'أكاديمية فاستبقوا الخيرات • جميع الحقوق محفوظة'
+        : 'Fastabiqul Khairat Academy • Hak Cipta Dilindungi',
+      ar: 'جميع الحقوق محفوظة لأكاديمية فاستبقوا الخيرات',
+    },
+  };
 
   return (
     <div
@@ -69,13 +88,17 @@ export default function PresensiPrivatePortalPage() {
         isAr ? 'font-arabic' : ''
       }`}
     >
-      {/* ── Top Header with 3-Language Capsule Switcher ─────────────────────── */}
+      {/* ── Top Header with 3-Flag Capsule Switcher ─────────────────────────── */}
       <header
         className={`max-w-md w-full flex items-center justify-between pt-2 pb-6 ${
           isAr ? 'flex-row-reverse' : ''
         }`}
       >
-        <div className={`flex items-center gap-3 ${isAr ? 'flex-row-reverse text-right' : 'text-left'}`}>
+        <div
+          className={`flex items-center gap-3 ${
+            isAr ? 'flex-row-reverse text-right' : 'text-left'
+          }`}
+        >
           <div className="relative h-11 w-11 shrink-0 p-0.5">
             <Image
               src="/logo.png"
@@ -90,97 +113,183 @@ export default function PresensiPrivatePortalPage() {
             <span className="font-bold text-sm tracking-tight text-slate-800">
               {isAr ? 'أكاديمية فاستبقوا الخيرات' : 'Fastabiqul Khairat Academy'}
             </span>
-            <span className="text-[11px] text-slate-500 leading-tight">
+            <span className="text-[11px] text-slate-500 font-arabic leading-tight">
               {isAr ? 'Fastabiqul Khairat Academy' : 'أكاديمية فاستبقوا الخيرات'}
             </span>
           </div>
         </div>
 
-        {/* 3-Language Capsule Switcher */}
+        {/* 3-Language Capsule Switcher with Country Flags */}
         <div className="flex items-center gap-1 bg-white border border-slate-200/80 rounded-full p-1 shadow-sm text-xs font-semibold">
-          <IoGlobeOutline className="h-3.5 w-3.5 text-slate-400 ml-1.5 mr-0.5" />
-          {(['AR', 'ID', 'EN'] as const).map((l) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => setLang(l)}
-              className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
-                lang === l
-                  ? 'bg-indigo-600 text-white font-bold shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {l}
-            </button>
-          ))}
+          {/* Indonesia Flag */}
+          <button
+            type="button"
+            onClick={() => setLang('ID')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+              lang === 'ID'
+                ? 'bg-indigo-600 text-white font-bold shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+            title="Bahasa Indonesia"
+          >
+            <span className="h-3.5 w-5 overflow-hidden rounded-sm inline-block shadow-xs shrink-0">
+              <FlagID title="Indonesia" className="h-full w-full object-cover" />
+            </span>
+            <span>ID</span>
+          </button>
+
+          {/* English Flag */}
+          <button
+            type="button"
+            onClick={() => setLang('EN')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+              lang === 'EN'
+                ? 'bg-indigo-600 text-white font-bold shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+            title="English"
+          >
+            <span className="h-3.5 w-5 overflow-hidden rounded-sm inline-block shadow-xs shrink-0">
+              <FlagGB title="English" className="h-full w-full object-cover" />
+            </span>
+            <span>EN</span>
+          </button>
+
+          {/* Arabic Flag */}
+          <button
+            type="button"
+            onClick={() => setLang('AR')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+              lang === 'AR'
+                ? 'bg-indigo-600 text-white font-bold shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+            title="العربية"
+          >
+            <span className="h-3.5 w-5 overflow-hidden rounded-sm inline-block shadow-xs shrink-0">
+              <FlagSA title="العربية" className="h-full w-full object-cover" />
+            </span>
+            <span>AR</span>
+          </button>
         </div>
       </header>
 
-      {/* ── Main Private Notice Card ────────────────────────────────────────── */}
+      {/* ── Main Private Notice Card with Dual-Language (AR always below) ───── */}
       <main className="max-w-md w-full my-auto">
         <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 border border-slate-100 text-center">
           {/* Private Access Badge */}
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-4">
-            <IoLockClosed className="h-3.5 w-3.5 text-indigo-600" />
-            <span>{content.badge}</span>
+            <IoLockClosed className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+            <span>{strings.badge.primary}</span>
+            {!isAr && (
+              <>
+                <span className="text-indigo-300">•</span>
+                <span className="font-arabic font-normal text-indigo-600">
+                  {strings.badge.ar}
+                </span>
+              </>
+            )}
           </div>
 
-          {/* Titles */}
+          {/* Titles: Primary + Arabic Always Directly Underneath */}
           <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-snug">
-            {content.title}
+            {strings.title.primary}
           </h1>
-          <p className="text-xs font-medium text-slate-500 mt-1">
-            {content.subtitle}
+          <p
+            className="text-sm font-bold text-indigo-600 font-arabic mt-1 leading-relaxed"
+            dir="rtl"
+          >
+            {strings.title.ar}
           </p>
 
-          {/* Information Notice */}
+          {/* Notice Box: Dual-Language with Arabic Subtext for Every Sentence */}
           <div
             className={`mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-3.5 ${
               isAr ? 'text-right' : 'text-left'
             }`}
           >
-            <div className={`flex items-start gap-2.5 ${isAr ? 'flex-row-reverse' : ''}`}>
+            {/* Item 1: Closed Portal Notice */}
+            <div
+              className={`flex items-start gap-2.5 ${
+                isAr ? 'flex-row-reverse text-right' : 'text-left'
+              }`}
+            >
               <IoShieldCheckmark className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
-              <p className="text-xs text-slate-700 leading-relaxed font-semibold">
-                {content.info1}
-              </p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-slate-700 leading-relaxed font-semibold">
+                  {strings.info1.primary}
+                </p>
+                {!isAr && (
+                  <p
+                    className="text-[11px] text-slate-500 font-arabic leading-relaxed mt-1"
+                    dir="rtl"
+                  >
+                    {strings.info1.ar}
+                  </p>
+                )}
+              </div>
             </div>
 
+            {/* Item 2: Group Link & Zoom Notice */}
             <div
               className={`flex items-start gap-2.5 pt-2.5 border-t border-slate-200/60 ${
-                isAr ? 'flex-row-reverse' : ''
+                isAr ? 'flex-row-reverse text-right' : 'text-left'
               }`}
             >
               <IoInformationCircleOutline className="h-4 w-4 text-indigo-600 mt-0.5 shrink-0" />
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                {content.info2}
-              </p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  {strings.info2.primary}
+                </p>
+                {!isAr && (
+                  <p
+                    className="text-[11px] text-slate-500 font-arabic leading-relaxed mt-1"
+                    dir="rtl"
+                  >
+                    {strings.info2.ar}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* WhatsApp Admin Help Button */}
+          {/* WhatsApp Admin Help Button with Arabic Subtitle */}
           <div className="mt-6">
             <a
-              href={`https://wa.me/6281234567890?text=${content.waMessage}`}
+              href={`https://wa.me/6281234567890?text=${strings.waBtn.message}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex flex-col items-center justify-center rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 sm:py-3.5 px-4 shadow-md shadow-emerald-600/20 transition-all cursor-pointer group"
             >
-              <div className={`flex items-center gap-2 text-xs sm:text-sm font-bold ${isAr ? 'flex-row-reverse' : ''}`}>
+              <div
+                className={`flex items-center gap-2 text-xs sm:text-sm font-bold ${
+                  isAr ? 'flex-row-reverse' : ''
+                }`}
+              >
                 <IoLogoWhatsapp className="h-4 w-4 shrink-0 text-white" />
-                <span>{content.waBtn}</span>
+                <span>{strings.waBtn.primary}</span>
               </div>
-              <span className="text-[11px] font-normal text-emerald-100 mt-0.5">
-                {content.waSub}
-              </span>
+              {!isAr && (
+                <span
+                  className="text-[11px] font-normal text-emerald-100 font-arabic mt-0.5"
+                  dir="rtl"
+                >
+                  {strings.waBtn.ar}
+                </span>
+              )}
             </a>
           </div>
         </div>
       </main>
 
-      {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <footer className="text-center text-xs text-slate-400 py-4">
-        © {new Date().getFullYear()} {content.copyright}
+      {/* ── Footer with Dual Language ───────────────────────────────────────── */}
+      <footer className="text-center text-xs text-slate-400 py-4 space-y-0.5">
+        <p>© {new Date().getFullYear()} {strings.footer.primary}</p>
+        {!isAr && (
+          <p className="text-[11px] text-slate-400 font-arabic" dir="rtl">
+            {strings.footer.ar}
+          </p>
+        )}
       </footer>
     </div>
   );

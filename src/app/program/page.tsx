@@ -237,6 +237,7 @@ export default function ProgramPage() {
                       poster={poster}
                       categoryLabel={categoryFilter?.label}
                       isRTL={isRTL}
+                      language={language}
                       t={t}
                       isClosedMessageVisible={false}
                       onPosterClick={handlePosterClick}
@@ -285,6 +286,7 @@ export default function ProgramPage() {
                             poster={poster}
                             categoryLabel={categoryFilter?.label}
                             isRTL={isRTL}
+                            language={language}
                             t={t}
                             isClosedMessageVisible={false}
                             onPosterClick={handlePosterClick}

@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { IoGlobeOutline } from 'react-icons/io5';
+import { ID as FlagID, GB as FlagGB } from 'country-flag-icons/react/3x2';
 import type { SupportedGateLang } from '@/lib/attendance.utils';
 
 interface AttendanceGateHeaderProps {
@@ -48,23 +48,39 @@ export function AttendanceGateHeader({
         </div>
       </Link>
 
-      {/* 2-Language Capsule Switcher (ID & EN) */}
+      {/* 2-Language Capsule Switcher (ID & EN) with Flags */}
       <div className="flex items-center gap-1 bg-white border border-slate-200/80 rounded-full p-1 shadow-sm text-xs font-semibold">
-        <IoGlobeOutline className="h-3.5 w-3.5 text-slate-400 ml-1.5 mr-0.5" />
-        {(['ID', 'EN'] as const).map((lang) => (
-          <button
-            key={lang}
-            type="button"
-            onClick={() => onSelectLang(lang)}
-            className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
-              activeLang === lang
-                ? 'bg-indigo-600 text-white font-bold shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {lang}
-          </button>
-        ))}
+        <button
+          type="button"
+          onClick={() => onSelectLang('ID')}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+            activeLang === 'ID'
+              ? 'bg-indigo-600 text-white font-bold shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+          title="Bahasa Indonesia"
+        >
+          <span className="h-3 w-4.5 overflow-hidden rounded-xs inline-block shrink-0 shadow-2xs">
+            <FlagID title="Indonesia" className="h-full w-full object-cover" />
+          </span>
+          <span>ID</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onSelectLang('EN')}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+            activeLang === 'EN'
+              ? 'bg-indigo-600 text-white font-bold shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+          title="English"
+        >
+          <span className="h-3 w-4.5 overflow-hidden rounded-xs inline-block shrink-0 shadow-2xs">
+            <FlagGB title="English" className="h-full w-full object-cover" />
+          </span>
+          <span>EN</span>
+        </button>
       </div>
     </header>
   );

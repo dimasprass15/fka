@@ -82,6 +82,9 @@ export function AttendanceScheduleNotice({
             ? `The attendance gate for session "${sessionTitle}" is currently disabled by Admin.`
             : `Gerbang presensi untuk sesi "${sessionTitle}" saat ini sedang dinonaktifkan sementara oleh Admin.`}
         </p>
+        <p className="text-[11px] text-slate-500 font-arabic leading-relaxed mt-1" dir="rtl">
+          رابط تسجيل الحضور لهذه الجلسة مغلق حالياً من قِبل المشرف
+        </p>
         <div className="mt-6 pt-5 border-t border-slate-100">
           <a
             href="https://wa.me/6281234567890?text=Assalamu'alaikum%20Admin%20FKA,%20saya%20ingin%20menanyakan%20status%20presensi%20halaqah%20saya."
@@ -162,12 +165,18 @@ export function AttendanceScheduleNotice({
               ? `Attendance opens ${schedule.openMinutesBefore} minutes before class begins (at ${schedule.openFormatted}) and closes automatically when the session ends (at ${schedule.closeFormatted}).`
               : `Presensi dibuka ${schedule.openMinutesBefore} menit sebelum kelas dimulai (pukul ${schedule.openFormatted}) dan ditutup otomatis saat pembelajaran selesai (pukul ${schedule.closeFormatted}).`}
           </p>
+          <p className="text-[11px] text-slate-500 font-arabic leading-relaxed" dir="rtl">
+            يُفتح تسجيل الحضور قبل {schedule.openMinutesBefore} دقيقة من موعد البداية ويُغلق تلقائياً بنهاية الجلسة.
+          </p>
         </div>
 
         <p className="mt-4 text-[11px] text-slate-400">
           {isEn
             ? 'This page will automatically unlock when attendance starts without needing to refresh.'
             : 'Halaman ini akan terbuka otomatis saat waktu presensi tiba tanpa perlu dimuat ulang.'}
+        </p>
+        <p className="text-[11px] text-slate-400 font-arabic mt-0.5" dir="rtl">
+          سيتم فتح هذه الصفحة تلقائياً عند حلول موعد الحضور دون الحاجة لتحديث الصفحة.
         </p>
       </div>
     );
@@ -198,6 +207,9 @@ export function AttendanceScheduleNotice({
           {isEn
             ? `The class session for "${sessionTitle}" ended at ${schedule.closeFormatted}.`
             : `Pembelajaran untuk sesi "${sessionTitle}" telah selesai pada pukul ${schedule.closeFormatted}.`}
+        </p>
+        <p className="text-[11px] text-slate-500 font-arabic leading-relaxed mt-1" dir="rtl">
+          انتهت جلسة هذه الحلقة في الساعة المحددة
         </p>
 
         {/* Next Session Box */}
@@ -257,6 +269,9 @@ export function AttendanceScheduleNotice({
         {isEn
           ? `The attendance gate for halaqah "${sessionTitle}" is only accessible during scheduled days and times.`
           : `Laman presensi untuk halaqah "${sessionTitle}" hanya dapat diisi pada hari dan jam yang telah dijadwalkan.`}
+      </p>
+      <p className="text-[11px] text-slate-500 font-arabic leading-relaxed mt-1" dir="rtl">
+        رابط تسجيل الحضور متاح فقط في الأيام والأوقات المحددة للجدول الدراسي
       </p>
 
       {/* Next Session Box */}
