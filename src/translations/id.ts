@@ -6,17 +6,17 @@ export const idTranslations = {
     contact: "Kontak Kami",
   },
   hero: {
-    subtitle: "Platform Belajar bersama Masyaikh Timur Tengah",
+    subtitle: "Platform Belajar Online",
     title: "Belajar Quran dan Ilmu Syariah Islam",
     titleHighlight: "Bersanad",
     description:
-      "Belajar ilmu qur'an dan ilmu syariah islam di mana saja bersama para pengajar dan masyaikh timur tengah bersanad.",
+      "Belajar ilmu qur'an dan ilmu syariah islam di mana saja di bawah bimbingan Syaikhah Abeer Utsman Al-Yamaniyyah.",
     descriptionPrefix: "Belajar ",
     descriptionBold1: "ilmu qur'an",
     descriptionMiddle: " dan ",
     descriptionBold2: "ilmu syariah islam",
     descriptionSuffix:
-      " di mana saja bersama para pengajar dan masyaikh timur tengah bersanad.",
+      " di mana saja di bawah bimbingan Syaikhah Abeer Utsman Al-Yamaniyyah.",
     cta: "Belajar Sekarang",
     stats: {
       users: "Pengguna",
@@ -29,7 +29,7 @@ export const idTranslations = {
       copyright: "Copyright",
       academy: "Fastabiqul Khairat Academy",
       description:
-        "Platform belajar Quran dan ilmu syariah Islam bersanad bersama masyaikh Timur Tengah.",
+        "Platform belajar Quran dan ilmu syariah Islam bersanad di bawah bimbingan Syaikhah Abeer Utsman Al-Yamaniyyah.",
       quickLinks: "Tautan Cepat",
       contactInfo: "Info Kontak",
       followUs: "Ikuti Kami",

@@ -6,17 +6,17 @@ export const enTranslations = {
     contact: "Contact Us",
   },
   hero: {
-    subtitle: "Premier Platform to Study with Middle Eastern Scholars",
+    subtitle: "Online Learning Platform",
     title: "Learn Quran and Islamic Sharia Sciences",
     titleHighlight: "with Sanad",
     description:
-      "Learn Quranic sciences and Islamic Sharia sciences anywhere with teachers and Middle Eastern scholars with sanad.",
+      "Learn Quranic sciences and Islamic Sharia sciences anywhere under the guidance of Syaikhah Abeer Utsman Al-Yamaniyyah.",
     descriptionPrefix: "Learn ",
     descriptionBold1: "Quranic sciences",
     descriptionMiddle: " and ",
     descriptionBold2: "Islamic Sharia sciences",
     descriptionSuffix:
-      " anywhere with teachers and Middle Eastern scholars with sanad.",
+      " anywhere under the guidance of Syaikhah Abeer Utsman Al-Yamaniyyah.",
     cta: "Start Learning Now",
     stats: {
       users: "Students",
@@ -29,7 +29,7 @@ export const enTranslations = {
       copyright: "Copyright",
       academy: "Fastabiqul Khairat Academy",
       description:
-        "A platform for learning the Quran and Islamic Sharia sciences with sanad from Middle Eastern scholars.",
+        "An online platform for learning the Quran and Islamic Sharia sciences with sanad under the guidance of Syaikhah Abeer Utsman Al-Yamaniyyah.",
       quickLinks: "Quick Links",
       contactInfo: "Contact Info",
       followUs: "Follow Us",
