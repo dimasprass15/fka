@@ -9,14 +9,12 @@ export const arTranslations = {
     subtitle: "منصة تعليمية إلكترونية رائدة",
     title: "تعلّم القرآن الكريم والعلوم الشرعية",
     titleHighlight: "بالسند المتصل",
-    description:
-      "تلقَّ علوم القرآن الكريم والعلوم الشرعية من أي مكان، تحت إشراف الشيخة عبير عثمان اليمانية.",
-    descriptionPrefix: "تلقَّ ",
-    descriptionBold1: "علوم القرآن الكريم",
-    descriptionMiddle: " و",
-    descriptionBold2: "العلوم الشرعية",
-    descriptionSuffix:
-      " من أي مكان تحت إشراف الشيخة عبير عثمان اليمانية.",
+    description: "تعلّم العلم على يد الشيخة عبير عثمان اليمانية",
+    descriptionPrefix: "تعلّم العلم على يد ",
+    descriptionBold1: "الشيخة عبير عثمان اليمانية",
+    descriptionMiddle: "",
+    descriptionBold2: "",
+    descriptionSuffix: "",
     cta: "ابدأ رحلتك التعليمية الآن",
     stats: {
       users: "طالب وطالبة",
