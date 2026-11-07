@@ -8,97 +8,67 @@ import {
   IoLogoWhatsapp,
   IoInformationCircleOutline,
 } from 'react-icons/io5';
-import { ID as FlagID, SA as FlagSA, GB as FlagGB } from 'country-flag-icons/react/3x2';
+import { ID as FlagID, GB as FlagGB } from 'country-flag-icons/react/3x2';
 
-type Language = 'ID' | 'EN' | 'AR';
+type Language = 'ID' | 'EN';
 
 export default function PresensiPrivatePortalPage() {
   const [lang, setLang] = useState<Language>('ID');
-  const isAr = lang === 'AR';
   const isEn = lang === 'EN';
 
   const strings = {
     badge: {
       primary: isEn
         ? 'Private Access Only'
-        : isAr
-        ? 'بوابة خاصة للطلاب المسجلين'
         : 'Akses Tertutup (Private Access)',
       ar: 'بوابة خاصة للطلاب المسجلين',
     },
     title: {
       primary: isEn
         ? 'Registered Students Access Only'
-        : isAr
-        ? 'خاص بالطلاب المسجلين رسمياً'
         : 'Akses Khusus Santri Terdaftar',
       ar: 'بوابة الدخول الخاصة بالطلاب المسجلين رسمياً',
     },
     subtitle: {
       primary: isEn
         ? 'This attendance portal is private and restricted to enrolled students.'
-        : isAr
-        ? 'هذه البوابة مخصصة حصرياً للطلاب المسجلين في الحلقات العلمية.'
         : 'Laman presensi ini bersifat tertutup khusus santri terdaftar.',
       ar: 'هذه البوابة مخصصة حصرياً للطلاب المسجلين في الحلقات العلمية',
     },
     info1: {
       primary: isEn
         ? 'Fastabiqul Khairat Academy attendance portal is private and restricted to officially registered students.'
-        : isAr
-        ? 'صفحة تسجيل الحضور لأكاديمية فاستبقوا الخيرات خاصة ومخصصة فقط للطلاب المسجلين رسمياً في الحلقات العلمية.'
         : 'Laman presensi Fastabiqul Khairat Academy bersifat tertutup dan hanya diperuntukkan bagi santri yang telah terdaftar resmi.',
       ar: 'صفحة تسجيل الحضور لأكاديمية فاستبقوا الخيرات خاصة ومخصصة فقط للطلاب المسجلين رسمياً في الحلقات العلمية.',
     },
     info2: {
       primary: isEn
         ? 'Complete attendance links along with Zoom room access are distributed periodically in official WhatsApp groups for each halaqah. Please use the complete link you received in your group.'
-        : isAr
-        ? 'يتم إرسال روابط الحضور المباشرة مع رابط الغرفة الافتراضية زووم دورياً في مجموعات الواتساب الرسمية لكل حلقة. يُرجى الدخول عبر الرابط المرسل في مجموعتكم.'
         : 'Tautan presensi lengkap beserta akses ruang Zoom dibagikan secara berkala di grup WhatsApp resmi halaqah masing-masing santri. Silakan gunakan tautan lengkap yang Anda terima di grup.',
       ar: 'يتم إرسال روابط الحضور المباشرة مع رابط غرفة الزوم دورياً في مجموعات الواتساب الرسمية لكل حلقة. يُرجى الدخول عبر الرابط المرسل في مجموعتكم.',
     },
     waBtn: {
       primary: isEn
         ? 'Attendance Help via WhatsApp Admin'
-        : isAr
-        ? 'طلب المساعدة عبر واتساب الإدارة'
         : 'Bantuan Presensi via WhatsApp Admin',
       ar: 'لطلب المساعدة والاستفسار عبر واتساب الإدارة',
       message: isEn
         ? "Assalamu'alaikum%20Admin%20FKA,%20I%20am%20an%20enrolled%20student%20inquiring%20about%20my%20halaqah%20attendance%20link."
-        : isAr
-        ? "السلام%20عليكم%20ورحمة%20الله،%20أنا%20طالب%20مسجل%20أود%20الاستفسار%20عن%20رابط%20حضور%20الحلقة."
         : "Assalamu'alaikum%20Admin%20FKA,%20saya%20santri%20terdaftar%20ingin%20menanyakan%20tautan%20presensi%20halaqah%20saya.",
     },
     footer: {
       primary: isEn
         ? 'Fastabiqul Khairat Academy • All rights reserved'
-        : isAr
-        ? 'أكاديمية فاستبقوا الخيرات • جميع الحقوق محفوظة'
         : 'Fastabiqul Khairat Academy • Hak Cipta Dilindungi',
       ar: 'جميع الحقوق محفوظة لأكاديمية فاستبقوا الخيرات',
     },
   };
 
   return (
-    <div
-      dir={isAr ? 'rtl' : 'ltr'}
-      className={`min-h-screen bg-[#F6F8FC] text-slate-900 py-6 sm:py-8 px-4 flex flex-col justify-between items-center ${
-        isAr ? 'font-arabic' : ''
-      }`}
-    >
-      {/* ── Top Header with 3-Flag Capsule Switcher ─────────────────────────── */}
-      <header
-        className={`max-w-md w-full flex items-center justify-between pt-2 pb-6 ${
-          isAr ? 'flex-row-reverse' : ''
-        }`}
-      >
-        <div
-          className={`flex items-center gap-3 ${
-            isAr ? 'flex-row-reverse text-right' : 'text-left'
-          }`}
-        >
+    <div className="min-h-screen bg-[#F6F8FC] text-slate-900 py-6 sm:py-8 px-4 flex flex-col justify-between items-center">
+      {/* ── Top Header with 2-Flag Capsule Switcher (ID & EN) ───────────────── */}
+      <header className="max-w-md w-full flex items-center justify-between pt-2 pb-6">
+        <div className="flex items-center gap-3 text-left">
           <div className="relative h-11 w-11 shrink-0 p-0.5">
             <Image
               src="/logo.png"
@@ -111,15 +81,15 @@ export default function PresensiPrivatePortalPage() {
           </div>
           <div className="flex flex-col">
             <span className="font-bold text-sm tracking-tight text-slate-800">
-              {isAr ? 'أكاديمية فاستبقوا الخيرات' : 'Fastabiqul Khairat Academy'}
+              Fastabiqul Khairat Academy
             </span>
             <span className="text-[11px] text-slate-500 font-arabic leading-tight">
-              {isAr ? 'Fastabiqul Khairat Academy' : 'أكاديمية فاستبقوا الخيرات'}
+              أكاديمية فاستبقوا الخيرات
             </span>
           </div>
         </div>
 
-        {/* 3-Language Capsule Switcher with Country Flags */}
+        {/* 2-Language Capsule Switcher (ID & EN) with Country Flags */}
         <div className="flex items-center gap-1 bg-white border border-slate-200/80 rounded-full p-1 shadow-sm text-xs font-semibold">
           {/* Indonesia Flag */}
           <button
@@ -154,23 +124,6 @@ export default function PresensiPrivatePortalPage() {
             </span>
             <span>EN</span>
           </button>
-
-          {/* Arabic Flag */}
-          <button
-            type="button"
-            onClick={() => setLang('AR')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all cursor-pointer ${
-              lang === 'AR'
-                ? 'bg-indigo-600 text-white font-bold shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-            title="العربية"
-          >
-            <span className="h-3.5 w-5 overflow-hidden rounded-sm inline-block shadow-xs shrink-0">
-              <FlagSA title="العربية" className="h-full w-full object-cover" />
-            </span>
-            <span>AR</span>
-          </button>
         </div>
       </header>
 
@@ -181,14 +134,10 @@ export default function PresensiPrivatePortalPage() {
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-4">
             <IoLockClosed className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
             <span>{strings.badge.primary}</span>
-            {!isAr && (
-              <>
-                <span className="text-indigo-300">•</span>
-                <span className="font-arabic font-normal text-indigo-600">
-                  {strings.badge.ar}
-                </span>
-              </>
-            )}
+            <span className="text-indigo-300">•</span>
+            <span className="font-arabic font-normal text-indigo-600">
+              {strings.badge.ar}
+            </span>
           </div>
 
           {/* Titles: Primary + Arabic Always Directly Underneath */}
@@ -203,52 +152,36 @@ export default function PresensiPrivatePortalPage() {
           </p>
 
           {/* Notice Box: Dual-Language with Arabic Subtext for Every Sentence */}
-          <div
-            className={`mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-3.5 ${
-              isAr ? 'text-right' : 'text-left'
-            }`}
-          >
+          <div className="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-3.5 text-left">
             {/* Item 1: Closed Portal Notice */}
-            <div
-              className={`flex items-start gap-2.5 ${
-                isAr ? 'flex-row-reverse text-right' : 'text-left'
-              }`}
-            >
+            <div className="flex items-start gap-2.5 text-left">
               <IoShieldCheckmark className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-slate-700 leading-relaxed font-semibold">
                   {strings.info1.primary}
                 </p>
-                {!isAr && (
-                  <p
-                    className="text-[11px] text-slate-500 font-arabic leading-relaxed mt-1"
-                    dir="rtl"
-                  >
-                    {strings.info1.ar}
-                  </p>
-                )}
+                <p
+                  className="text-[11px] text-slate-500 font-arabic leading-relaxed mt-1"
+                  dir="rtl"
+                >
+                  {strings.info1.ar}
+                </p>
               </div>
             </div>
 
             {/* Item 2: Group Link & Zoom Notice */}
-            <div
-              className={`flex items-start gap-2.5 pt-2.5 border-t border-slate-200/60 ${
-                isAr ? 'flex-row-reverse text-right' : 'text-left'
-              }`}
-            >
+            <div className="flex items-start gap-2.5 pt-2.5 border-t border-slate-200/60 text-left">
               <IoInformationCircleOutline className="h-4 w-4 text-indigo-600 mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-slate-600 leading-relaxed font-medium">
                   {strings.info2.primary}
                 </p>
-                {!isAr && (
-                  <p
-                    className="text-[11px] text-slate-500 font-arabic leading-relaxed mt-1"
-                    dir="rtl"
-                  >
-                    {strings.info2.ar}
-                  </p>
-                )}
+                <p
+                  className="text-[11px] text-slate-500 font-arabic leading-relaxed mt-1"
+                  dir="rtl"
+                >
+                  {strings.info2.ar}
+                </p>
               </div>
             </div>
           </div>
@@ -261,22 +194,16 @@ export default function PresensiPrivatePortalPage() {
               rel="noopener noreferrer"
               className="w-full flex flex-col items-center justify-center rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 sm:py-3.5 px-4 shadow-md shadow-emerald-600/20 transition-all cursor-pointer group"
             >
-              <div
-                className={`flex items-center gap-2 text-xs sm:text-sm font-bold ${
-                  isAr ? 'flex-row-reverse' : ''
-                }`}
-              >
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold">
                 <IoLogoWhatsapp className="h-4 w-4 shrink-0 text-white" />
                 <span>{strings.waBtn.primary}</span>
               </div>
-              {!isAr && (
-                <span
-                  className="text-[11px] font-normal text-emerald-100 font-arabic mt-0.5"
-                  dir="rtl"
-                >
-                  {strings.waBtn.ar}
-                </span>
-              )}
+              <span
+                className="text-[11px] font-normal text-emerald-100 font-arabic mt-0.5"
+                dir="rtl"
+              >
+                {strings.waBtn.ar}
+              </span>
             </a>
           </div>
         </div>
@@ -285,11 +212,9 @@ export default function PresensiPrivatePortalPage() {
       {/* ── Footer with Dual Language ───────────────────────────────────────── */}
       <footer className="text-center text-xs text-slate-400 py-4 space-y-0.5">
         <p>© {new Date().getFullYear()} {strings.footer.primary}</p>
-        {!isAr && (
-          <p className="text-[11px] text-slate-400 font-arabic" dir="rtl">
-            {strings.footer.ar}
-          </p>
-        )}
+        <p className="text-[11px] text-slate-400 font-arabic" dir="rtl">
+          {strings.footer.ar}
+        </p>
       </footer>
     </div>
   );
