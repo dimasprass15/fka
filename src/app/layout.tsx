@@ -10,8 +10,25 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Fastabiqul Khairat Academy",
+  title: {
+    template: "%s | Fastabiqul Khairat Academy",
+    default: "Fastabiqul Khairat Academy",
+  },
   description: "Platform Belajar Quran dan Ilmu Syariah Islam Bersanad",
+  keywords: ["Belajar Quran", "Ilmu Syariah", "Sanad", "Timur Tengah", "Fastabiqul Khairat"],
+  authors: [{ name: "Fastabiqul Khairat Academy" }],
+  openGraph: {
+    title: "Fastabiqul Khairat Academy",
+    description: "Platform Belajar Quran dan Ilmu Syariah Islam Bersanad",
+    url: "https://fastabiqulkhairat.academy",
+    siteName: "Fastabiqul Khairat Academy",
+    locale: "id_ID",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",

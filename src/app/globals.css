@@ -41,16 +41,8 @@ body {
   direction: rtl;
 }
 
-[dir="rtl"] * {
-  text-align: right;
-}
-
 [dir="ltr"] {
   direction: ltr;
-}
-
-[dir="ltr"] * {
-  text-align: left;
 }
 
 /* RTL specific adjustments */
@@ -66,5 +58,12 @@ body {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
+}
+
+/* Crisp & elegant typography for Arabic Fushah */
+.font-arabic {
+  font-family: 'Segoe UI', Tahoma, 'Geeza Pro', 'Traditional Arabic', 'Arial', sans-serif;
+  letter-spacing: 0.01em;
+  line-height: 1.45;
 }
 

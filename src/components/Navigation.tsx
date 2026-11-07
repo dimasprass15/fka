@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ID, SA, GB } from "country-flag-icons/react/3x2";
 import { Home as HomeIcon, Info, BookOpen, Phone } from "lucide-react";
@@ -14,6 +14,19 @@ export default function Navigation() {
   const [langOpen, setLangOpen] = useState(false);
   const pathname = usePathname();
   const t = translations[language];
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setLangOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const navItems = [
     { id: "home", label: t.nav.home, icon: HomeIcon, href: "/" },
@@ -66,6 +79,7 @@ export default function Navigation() {
 
           {/* Right controls */}
           <div
+            ref={dropdownRef}
             className={`relative flex items-center gap-3 ${
               isRTL ? "flex-row-reverse" : ""
             }`}

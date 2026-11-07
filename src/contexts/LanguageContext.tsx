@@ -15,19 +15,21 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 );
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("ID");
-
-  useEffect(() => {
-    // Load saved language from localStorage
-    const savedLang = localStorage.getItem("language") as Language;
-    if (savedLang && (savedLang === "ID" || savedLang === "AR" || savedLang === "EN")) {
-      setLanguageState(savedLang);
+  const [language, setLanguageState] = useState<Language>(() => {
+    if (typeof window !== "undefined") {
+      const savedLang = localStorage.getItem("language") as Language;
+      if (savedLang === "ID" || savedLang === "AR" || savedLang === "EN") {
+        return savedLang;
+      }
     }
-  }, []);
+    return "ID";
+  });
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem("language", lang);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("language", lang);
+    }
     // Update HTML dir attribute for RTL
     if (lang === "AR") {
       document.documentElement.setAttribute("dir", "rtl");
@@ -65,4 +67,3 @@ export function useLanguage() {
   }
   return context;
 }
-
