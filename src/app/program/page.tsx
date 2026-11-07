@@ -14,6 +14,10 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ProgramPosterCard, { Poster } from "@/components/ProgramPosterCard";
 import ProgramDetailModal from "@/components/ProgramDetailModal";
+import {
+  StandardProgramsSection,
+  type StandardProgramItem,
+} from "@/components/StandardProgramsSection";
 import { supabase } from "@/lib/supabase";
 import type { ProgramRecord } from "@/types/program";
 
@@ -28,6 +32,7 @@ export default function ProgramPage() {
 
   // Dynamic state from Supabase
   const [supabasePrograms, setSupabasePrograms] = useState<ProgramRecord[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -44,6 +49,8 @@ export default function ProgramPage() {
         }
       } catch (e) {
         console.error("Using fallback static programs, Supabase query note:", e);
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
     }
     loadPrograms();
@@ -106,8 +113,8 @@ export default function ProgramPage() {
   // Check if Supabase loaded successfully
   const isLoadedFromSupabase = supabasePrograms !== null;
 
-  // Build Standard Programs List (Dynamic Supabase with Fallback)
-  const standardProgramsList = isLoadedFromSupabase
+  // Build Standard Programs List (Dynamic Supabase with Fallback on offline error only)
+  const standardProgramsList: StandardProgramItem[] = isLoadedFromSupabase
     ? supabasePrograms
         .filter((p) => p.is_standard)
         .map((p) => {
@@ -132,29 +139,31 @@ export default function ProgramPage() {
             icon: renderProgramIcon(p.icon_name),
           };
         })
-    : [
-        {
-          id: "std-1",
-          href: "/program/khataman",
-          title: t.program.standardPrograms?.khataman.title || "Khataman Sanad 30 Juz",
-          subtitle: t.program.standardPrograms?.khataman.subtitle || "Bi Nadzor dan Bilghoib",
-          icon: renderProgramIcon("quran"),
-        },
-        {
-          id: "std-2",
-          href: "/program/tahsin",
-          title: t.program.standardPrograms?.tahsin.title || "Tahsin atau Tashih",
-          subtitle: t.program.standardPrograms?.tahsin.subtitle || "Perbaikan bacaan Al-Quran",
-          icon: renderProgramIcon("sparkles"),
-        },
-        {
-          id: "std-3",
-          href: "/program/matan",
-          title: t.program.standardPrograms?.matan.title || "Setoran Matan Ilmiah",
-          subtitle: t.program.standardPrograms?.matan.subtitle || "Hafalan matan bersanad",
-          icon: renderProgramIcon("book"),
-        },
-      ];
+    : (!isLoading
+        ? [
+            {
+              id: "std-1",
+              href: "/program/khataman",
+              title: t.program.standardPrograms?.khataman.title || "Khataman Sanad 30 Juz",
+              subtitle: t.program.standardPrograms?.khataman.subtitle || "Bi Nadzor dan Bilghoib",
+              icon: renderProgramIcon("quran"),
+            },
+            {
+              id: "std-2",
+              href: "/program/tahsin",
+              title: t.program.standardPrograms?.tahsin.title || "Tahsin atau Tashih",
+              subtitle: t.program.standardPrograms?.tahsin.subtitle || "Perbaikan bacaan Al-Quran",
+              icon: renderProgramIcon("sparkles"),
+            },
+            {
+              id: "std-3",
+              href: "/program/matan",
+              title: t.program.standardPrograms?.matan.title || "Setoran Matan Ilmiah",
+              subtitle: t.program.standardPrograms?.matan.subtitle || "Hafalan matan bersanad",
+              icon: renderProgramIcon("book"),
+            },
+          ]
+        : []);
 
   // Build Poster Programs (Dynamic Supabase with Fallback)
   const posterDefsStatic: Array<{
@@ -276,37 +285,22 @@ export default function ProgramPage() {
           </h1>
 
           {/* Standard Programs */}
-          <div className="mb-12 w-full">
-            <h2 className="mb-6 text-2xl font-semibold text-emerald-800">
-              {t.program.standardPrograms?.title || "Program Utama"}
-            </h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {standardProgramsList.map((prog) => (
-                <Link
-                  key={prog.id}
-                  href={prog.href}
-                  onClick={(e) => handleStandardProgramClick(e, prog.href)}
-                  className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-white p-6 shadow-md transition-all hover:-translate-y-1 hover:shadow-xl group block cursor-pointer"
-                >
-                  <div className="absolute top-0 left-0 w-1 h-full bg-[#C9A24D] transition-all group-hover:w-full group-hover:opacity-10" />
-                  <div className="relative z-10">
-                    {prog.icon}
-                    <h3 className="mb-2 text-xl font-bold text-emerald-900">{prog.title}</h3>
-                    <p className="text-sm text-slate-600">{prog.subtitle}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+          <StandardProgramsSection
+            programs={standardProgramsList}
+            title={t.program.standardPrograms?.title || "Program Utama"}
+            onProgramClick={handleStandardProgramClick}
+          />
 
-          {/* Section Divider */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="h-px flex-1 bg-slate-200" />
-            <h2 className="text-lg font-medium text-slate-500">
-              {t.program.standardPrograms?.exploreMore || "Jelajahi Program Lainnya"}
-            </h2>
-            <div className="h-px flex-1 bg-slate-200" />
-          </div>
+          {/* Section Divider - only show if Standard Programs exist */}
+          {standardProgramsList.length > 0 && (
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-px flex-1 bg-slate-200" />
+              <h2 className="text-lg font-medium text-slate-500">
+                {t.program.standardPrograms?.exploreMore || "Jelajahi Program Lainnya"}
+              </h2>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
+          )}
 
           {/* Search Input */}
           <div className="mb-6 w-full">

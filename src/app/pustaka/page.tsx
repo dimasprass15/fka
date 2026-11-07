@@ -17,7 +17,8 @@ export default function PustakaPage() {
   const { language, isRTL } = useLanguage();
   const t = translations[language];
 
-  const [posts, setPosts] = useState<KnowledgePost[]>(initialKnowledgePosts);
+  const [posts, setPosts] = useState<KnowledgePost[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeType, setActiveType] = useState<KnowledgeType | "all">("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -37,11 +38,17 @@ export default function PustakaPage() {
           .order("sort_order", { ascending: true })
           .order("created_at", { ascending: false });
 
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
+          // Single source of truth: even if empty array, set empty
           setPosts(data as KnowledgePost[]);
+        } else if (error) {
+          // If error/table missing, use fallback
+          setPosts(initialKnowledgePosts);
         }
       } catch {
-        // Graceful fallback to initialKnowledgePosts
+        setPosts(initialKnowledgePosts);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadLivePosts();
@@ -202,7 +209,13 @@ export default function PustakaPage() {
           </div>
 
           {/* Content Cards Grid */}
-          {filteredPosts.length === 0 ? (
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full animate-pulse">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-44 rounded-2xl bg-white/70 border border-emerald-100/60 p-6 shadow-sm" />
+              ))}
+            </div>
+          ) : filteredPosts.length === 0 ? (
             <div className="rounded-2xl border border-slate-200 bg-white/70 p-10 text-center text-sm text-slate-600">
               {t.pustaka.labels.empty}
             </div>
