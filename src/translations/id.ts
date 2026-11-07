@@ -10,13 +10,12 @@ export const idTranslations = {
     title: "Belajar Quran dan Ilmu Syariah Islam",
     titleHighlight: "Bersanad",
     description:
-      "Belajar ilmu qur'an dan ilmu syariah islam di mana saja di bawah bimbingan Syaikhah Abeer Utsman Al-Yamaniyyah.",
-    descriptionPrefix: "Belajar ",
-    descriptionBold1: "ilmu qur'an",
-    descriptionMiddle: " dan ",
-    descriptionBold2: "ilmu syariah islam",
-    descriptionSuffix:
-      " di mana saja di bawah bimbingan Syaikhah Abeer Utsman Al-Yamaniyyah.",
+      "Belajar ilmu bersama Syaikhah Abeer Utsman Al-Yamaniyyah.",
+    descriptionPrefix: "Belajar ilmu bersama ",
+    descriptionBold1: "Syaikhah Abeer Utsman Al-Yamaniyyah",
+    descriptionMiddle: "",
+    descriptionBold2: "",
+    descriptionSuffix: ".",
     cta: "Belajar Sekarang",
     stats: {
       users: "Pengguna",

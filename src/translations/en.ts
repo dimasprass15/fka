@@ -10,13 +10,12 @@ export const enTranslations = {
     title: "Learn Quran and Islamic Sharia Sciences",
     titleHighlight: "with Sanad",
     description:
-      "Learn Quranic sciences and Islamic Sharia sciences anywhere under the guidance of Syaikhah Abeer Utsman Al-Yamaniyyah.",
-    descriptionPrefix: "Learn ",
-    descriptionBold1: "Quranic sciences",
-    descriptionMiddle: " and ",
-    descriptionBold2: "Islamic Sharia sciences",
-    descriptionSuffix:
-      " anywhere under the guidance of Syaikhah Abeer Utsman Al-Yamaniyyah.",
+      "Study under the guidance of Syaikhah Abeer Utsman Al-Yamaniyyah.",
+    descriptionPrefix: "Study under the guidance of ",
+    descriptionBold1: "Syaikhah Abeer Utsman Al-Yamaniyyah",
+    descriptionMiddle: "",
+    descriptionBold2: "",
+    descriptionSuffix: ".",
     cta: "Start Learning Now",
     stats: {
       users: "Students",
