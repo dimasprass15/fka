@@ -4,7 +4,7 @@ import Image from "next/image";
 import { translations } from "@/translations";
 
 export type Poster = {
-  id: number;
+  id: number | string;
   title: string;
   subtitle: string;
   image: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -14,6 +14,8 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ProgramPosterCard, { Poster } from "@/components/ProgramPosterCard";
 import ProgramDetailModal from "@/components/ProgramDetailModal";
+import { supabase } from "@/lib/supabase";
+import type { ProgramRecord } from "@/types/program";
 
 export default function ProgramPage() {
   const { language, isRTL } = useLanguage();
@@ -23,6 +25,32 @@ export default function ProgramPage() {
   const [query, setQuery] = useState("");
   const [selectedPoster, setSelectedPoster] = useState<Poster | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
+
+  // Dynamic state from Supabase
+  const [supabasePrograms, setSupabasePrograms] = useState<ProgramRecord[] | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadPrograms() {
+      try {
+        const { data, error } = await supabase
+          .from("programs")
+          .select("*")
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true });
+
+        if (!error && data && data.length > 0 && isMounted) {
+          setSupabasePrograms(data as ProgramRecord[]);
+        }
+      } catch (e) {
+        console.error("Using fallback static programs, Supabase query note:", e);
+      }
+    }
+    loadPrograms();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handlePosterClick = (e: React.MouseEvent, poster: Poster) => {
     e.preventDefault();
@@ -50,7 +78,85 @@ export default function ProgramPage() {
     { key: "daurah", label: t.program.filters.daurah },
   ];
 
-  const posterDefs: Array<{
+  // Helper function to render standard program icons
+  const renderProgramIcon = (iconName?: string) => {
+    switch (iconName) {
+      case "sparkles":
+        return (
+          <svg className="w-8 h-8 text-[#C9A24D] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z" />
+          </svg>
+        );
+      case "book":
+        return (
+          <svg className="w-8 h-8 text-[#C9A24D] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        );
+      case "quran":
+      default:
+        return (
+          <svg className="w-8 h-8 text-[#C9A24D] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        );
+    }
+  };
+
+  // Build Standard Programs List (Dynamic Supabase with Fallback)
+  const hasDynamicStandards = supabasePrograms && supabasePrograms.some((p) => p.is_standard);
+  const standardProgramsList = hasDynamicStandards
+    ? supabasePrograms!
+        .filter((p) => p.is_standard)
+        .map((p) => {
+          const title =
+            language === "AR"
+              ? p.title_ar
+              : language === "EN" && p.title_en
+              ? p.title_en
+              : p.title_id;
+          const subtitle =
+            language === "AR"
+              ? p.subtitle_ar
+              : language === "EN" && p.subtitle_en
+              ? p.subtitle_en
+              : p.subtitle_id;
+
+          return {
+            id: p.id,
+            href: `/program/${p.slug}`,
+            title: title || p.title_id,
+            subtitle: subtitle || p.subtitle_id,
+            icon: renderProgramIcon(p.icon_name),
+          };
+        })
+    : [
+        {
+          id: "std-1",
+          href: "/program/khataman",
+          title: t.program.standardPrograms?.khataman.title || "Khataman Sanad 30 Juz",
+          subtitle: t.program.standardPrograms?.khataman.subtitle || "Bi Nadzor dan Bilghoib",
+          icon: renderProgramIcon("quran"),
+        },
+        {
+          id: "std-2",
+          href: "/program/tahsin",
+          title: t.program.standardPrograms?.tahsin.title || "Tahsin atau Tashih",
+          subtitle: t.program.standardPrograms?.tahsin.subtitle || "Perbaikan bacaan Al-Quran",
+          icon: renderProgramIcon("sparkles"),
+        },
+        {
+          id: "std-3",
+          href: "/program/matan",
+          title: t.program.standardPrograms?.matan.title || "Setoran Matan Ilmiah",
+          subtitle: t.program.standardPrograms?.matan.subtitle || "Hafalan matan bersanad",
+          icon: renderProgramIcon("book"),
+        },
+      ];
+
+  // Build Poster Programs (Dynamic Supabase with Fallback)
+  const hasDynamicFlyers = supabasePrograms && supabasePrograms.some((p) => !p.is_standard);
+  const posterDefsStatic: Array<{
     id: number;
     key: keyof typeof t.program.posters;
     image: string;
@@ -67,21 +173,75 @@ export default function ProgramPage() {
     { id: 8, key: "sirah", image: "/8.jpeg", category: "daurah", status: "closed" },
   ];
 
-  const posters: Poster[] = posterDefs.map((def) => {
-    const data = t.program.posters[def.key];
-    return {
-      id: def.id,
-      title: data.title,
-      subtitle: data.subtitle,
-      image: def.image,
-      category: def.category,
-      status: def.status,
-      description: data.description,
-      facilities: data.facilities,
-      requirements: data.requirements,
-      infaq: data.infaq,
-    };
-  });
+  const posters: Poster[] = hasDynamicFlyers
+    ? supabasePrograms!
+        .filter((p) => !p.is_standard)
+        .map((p) => {
+          const title =
+            language === "AR"
+              ? p.title_ar
+              : language === "EN" && p.title_en
+              ? p.title_en
+              : p.title_id;
+          const subtitle =
+            language === "AR"
+              ? p.subtitle_ar
+              : language === "EN" && p.subtitle_en
+              ? p.subtitle_en
+              : p.subtitle_id;
+          const desc =
+            language === "AR"
+              ? p.description_ar || p.description_id
+              : language === "EN" && p.description_en
+              ? p.description_en
+              : p.description_id;
+          const facilities =
+            language === "AR" && p.facilities_ar?.length
+              ? p.facilities_ar
+              : language === "EN" && p.facilities_en?.length
+              ? p.facilities_en
+              : p.facilities_id || [];
+          const requirements =
+            language === "AR" && p.requirements_ar?.length
+              ? p.requirements_ar
+              : language === "EN" && p.requirements_en?.length
+              ? p.requirements_en
+              : p.requirements_id || [];
+          const infaq =
+            language === "AR"
+              ? p.infaq_label_ar || p.infaq_label_id
+              : language === "EN" && p.infaq_label_en
+              ? p.infaq_label_en
+              : p.infaq_label_id;
+
+          return {
+            id: p.id,
+            title,
+            subtitle,
+            image: p.image_url || "/1.jpeg",
+            category: p.category,
+            status: p.status,
+            description: desc,
+            facilities,
+            requirements,
+            infaq,
+          };
+        })
+    : posterDefsStatic.map((def) => {
+        const data = t.program.posters[def.key];
+        return {
+          id: def.id,
+          title: data.title,
+          subtitle: data.subtitle,
+          image: def.image,
+          category: def.category,
+          status: def.status,
+          description: data.description,
+          facilities: data.facilities,
+          requirements: data.requirements,
+          infaq: data.infaq,
+        };
+      });
 
   const q = query.trim().toLowerCase();
   const filteredPosters = posters.filter((p) => {
@@ -95,42 +255,6 @@ export default function ProgramPage() {
     const matchesCategory = !activeFilter || p.category === activeFilter;
     return matchesText && matchesCategory;
   });
-
-  const standardProgramsList = [
-    {
-      id: "std-1",
-      href: "/program/khataman",
-      title: t.program.standardPrograms?.khataman.title || "Khataman Sanad 30 Juz",
-      subtitle: t.program.standardPrograms?.khataman.subtitle || "Bi Nadzor dan Bilghoib",
-      icon: (
-        <svg className="w-8 h-8 text-[#C9A24D] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-        </svg>
-      ),
-    },
-    {
-      id: "std-2",
-      href: "/program/tahsin",
-      title: t.program.standardPrograms?.tahsin.title || "Tahsin atau Tashih",
-      subtitle: t.program.standardPrograms?.tahsin.subtitle || "Perbaikan bacaan Al-Quran",
-      icon: (
-        <svg className="w-8 h-8 text-[#C9A24D] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-        </svg>
-      ),
-    },
-    {
-      id: "std-3",
-      href: "/program/matan",
-      title: t.program.standardPrograms?.matan.title || "Setoran Matan Ilmiah",
-      subtitle: t.program.standardPrograms?.matan.subtitle || "Hafalan matan bersanad",
-      icon: (
-        <svg className="w-8 h-8 text-[#C9A24D] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-      ),
-    },
-  ];
 
   return (
     <div
