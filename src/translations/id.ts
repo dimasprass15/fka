@@ -9,13 +9,12 @@ export const idTranslations = {
     subtitle: "Platform Belajar Online",
     title: "Belajar Quran dan Ilmu Syariah Islam",
     titleHighlight: "Bersanad",
-    description:
-      "Belajar ilmu bersama Syaikhah Abeer Utsman Al-Yamaniyyah.",
-    descriptionPrefix: "Belajar ilmu bersama ",
-    descriptionBold1: "Syaikhah Abeer Utsman Al-Yamaniyyah",
+    description: "Dibawah bimbingan Syaikhah Abeer Utsman Al Yamaniyyah",
+    descriptionPrefix: "Dibawah bimbingan ",
+    descriptionBold1: "Syaikhah Abeer Utsman Al Yamaniyyah",
     descriptionMiddle: "",
     descriptionBold2: "",
-    descriptionSuffix: ".",
+    descriptionSuffix: "",
     cta: "Belajar Sekarang",
     stats: {
       users: "Pengguna",
