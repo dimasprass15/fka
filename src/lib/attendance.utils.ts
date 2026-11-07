@@ -313,6 +313,26 @@ export function translateDaysToAr(days?: string): string {
 }
 
 /**
+ * Translates day labels (e.g. "Jumat", "Senin & Kamis") to English.
+ */
+export function translateDaysToEn(days?: string): string {
+  if (!days) return "";
+  const d = days.toLowerCase();
+  if (d.includes("setiap hari") || d.includes("daily")) return "Every Day";
+  if (d.includes("senin") && d.includes("kamis")) return "Monday & Thursday";
+  if (d.includes("sabtu") && d.includes("rabu")) return "Saturday - Wednesday";
+  if (d.includes("senin") && d.includes("jumat")) return "Monday - Friday";
+  if (d.includes("jumat") || d.includes("jum'at")) return "Friday";
+  if (d.includes("senin")) return "Monday";
+  if (d.includes("selasa")) return "Tuesday";
+  if (d.includes("rabu")) return "Wednesday";
+  if (d.includes("kamis")) return "Thursday";
+  if (d.includes("sabtu")) return "Saturday";
+  if (d.includes("ahad") || d.includes("minggu")) return "Sunday";
+  return days;
+}
+
+/**
  * Translates time to Arabic with KSA / WIB context.
  */
 export function translateTimeToAr(utcHour?: number, utcMinute?: number): string {
@@ -338,6 +358,22 @@ export function translateCategoryToAr(cat?: string): string {
   if (c.includes("khataman")) return "ختمة القرآن الكريم";
   if (c.includes("bahasa arab")) return "اللغة العربية";
   if (c.includes("matan")) return "دراسة المتون العلمية";
+  return cat;
+}
+
+/**
+ * Translates program category to English.
+ */
+export function translateCategoryToEn(cat?: string): string {
+  if (!cat) return "Halaqah";
+  const c = cat.toLowerCase();
+  if (c.includes("majelis sama")) return "Majelis Sama";
+  if (c.includes("tahsin")) return "Tahsin & Tajweed";
+  if (c.includes("tahfizh") || c.includes("tahfiz")) return "Quran Memorization";
+  if (c.includes("daurah")) return "Intensive Course";
+  if (c.includes("khataman")) return "Quran Khataman";
+  if (c.includes("bahasa arab")) return "Arabic Language";
+  if (c.includes("matan")) return "Matan Studies";
   return cat;
 }
 
@@ -460,6 +496,30 @@ export function translateAnnouncementToAr(desc?: string): string {
   }
 
   return "يرجى ملء البيانات المطلوبة أعلاه لمتابعة الحضور.";
+}
+
+/**
+ * Translates announcement / description text to English.
+ */
+export function translateAnnouncementToEn(desc?: string): string {
+  if (!desc) return "";
+  if (desc.includes("|")) {
+    const parts = desc.split("|");
+    if (parts.length > 2 && parts[2].trim()) return parts[2].trim();
+  }
+
+  const d = desc.toLowerCase();
+  if (d.includes("harap mengisi formulir presensi") || d.includes("mendapatkan akses ke room zoom")) {
+    return "Please fill out the attendance form to gain access to the Zoom room.";
+  }
+  if (d.includes("berwudhu") && d.includes("kitab")) {
+    return "Please perform ablution and prepare your book before entering the Zoom room.";
+  }
+  if (d.includes("selamat datang")) {
+    return "Welcome to the blessed halaqah room.";
+  }
+
+  return desc;
 }
 
 /**

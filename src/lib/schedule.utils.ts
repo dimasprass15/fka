@@ -21,6 +21,7 @@ export interface ScheduleWindowResult {
   closeFormatted: string;
   nextSessionDescId: string;
   nextSessionDescAr: string;
+  nextSessionDescEn: string;
 }
 
 export const DAY_NAMES_ID: Record<number, string> = {
@@ -31,6 +32,16 @@ export const DAY_NAMES_ID: Record<number, string> = {
   5: 'Jumat',
   6: 'Sabtu',
   7: 'Ahad',
+};
+
+export const DAY_NAMES_EN: Record<number, string> = {
+  1: 'Monday',
+  2: 'Tuesday',
+  3: 'Wednesday',
+  4: 'Thursday',
+  5: 'Friday',
+  6: 'Saturday',
+  7: 'Sunday',
 };
 
 export const DAY_NAMES_AR: Record<number, string> = {
@@ -114,6 +125,7 @@ export function evaluateScheduleWindow(params: {
     const nextDay = findNextActiveDay(wibDay, activeDays);
     const dayNameId = nextDay ? DAY_NAMES_ID[nextDay] : 'Pekan depan';
     const dayNameAr = nextDay ? DAY_NAMES_AR[nextDay] : 'الأسبوع القادم';
+    const dayNameEn = nextDay ? DAY_NAMES_EN[nextDay] : 'Next week';
 
     return {
       status: 'notScheduledToday',
@@ -131,6 +143,7 @@ export function evaluateScheduleWindow(params: {
       closeFormatted,
       nextSessionDescId: `${dayNameId}, pukul ${startFormatted}`,
       nextSessionDescAr: `يوم ${dayNameAr}، الساعة ${formatTime(startHourWib, startMinuteWib)} بتوقيت إندونيسيا`,
+      nextSessionDescEn: `${dayNameEn}, at ${startFormatted}`,
     };
   }
 
@@ -154,6 +167,7 @@ export function evaluateScheduleWindow(params: {
       closeFormatted,
       nextSessionDescId: `Hari ini, pukul ${startFormatted} (Buka: ${openFormatted})`,
       nextSessionDescAr: `اليوم الساعة ${formatTime(startHourWib, startMinuteWib)} (يفتح: ${formatTime(openHour, openMin)})`,
+      nextSessionDescEn: `Today, at ${startFormatted} (Opens: ${openFormatted})`,
     };
   }
 
@@ -175,6 +189,7 @@ export function evaluateScheduleWindow(params: {
       closeFormatted,
       nextSessionDescId: '',
       nextSessionDescAr: '',
+      nextSessionDescEn: '',
     };
   }
 
@@ -196,6 +211,7 @@ export function evaluateScheduleWindow(params: {
       closeFormatted,
       nextSessionDescId: '',
       nextSessionDescAr: '',
+      nextSessionDescEn: '',
     };
   }
 
@@ -204,6 +220,7 @@ export function evaluateScheduleWindow(params: {
   const isNextDayToday = nextDay === wibDay;
   const dayNameId = isNextDayToday ? 'Pekan depan' : nextDay ? DAY_NAMES_ID[nextDay] : 'Pekan depan';
   const dayNameAr = isNextDayToday ? 'الأسبوع القادم' : nextDay ? DAY_NAMES_AR[nextDay] : 'الأسبوع القادم';
+  const dayNameEn = isNextDayToday ? 'Next week' : nextDay ? DAY_NAMES_EN[nextDay] : 'Next week';
 
   return {
     status: 'closed',
@@ -221,5 +238,7 @@ export function evaluateScheduleWindow(params: {
     closeFormatted,
     nextSessionDescId: `${dayNameId}, pukul ${startFormatted}`,
     nextSessionDescAr: `يوم ${dayNameAr}، الساعة ${formatTime(startHourWib, startMinuteWib)} بتوقيت إندونيسيا`,
+    nextSessionDescEn: `${dayNameEn}, at ${startFormatted}`,
   };
 }
+

@@ -9,12 +9,14 @@ import {
   IoHourglassOutline,
   IoLockClosedOutline,
 } from 'react-icons/io5';
+import type { SupportedGateLang } from '@/lib/attendance.utils';
 import { ScheduleWindowResult } from '@/lib/schedule.utils';
 
 interface AttendanceScheduleNoticeProps {
   schedule: ScheduleWindowResult;
   sessionTitle: string;
   isManuallyDisabled?: boolean;
+  lang?: SupportedGateLang;
   onAutoUnlock?: () => void;
 }
 
@@ -22,9 +24,11 @@ export function AttendanceScheduleNotice({
   schedule,
   sessionTitle,
   isManuallyDisabled,
+  lang = 'ID',
   onAutoUnlock,
 }: AttendanceScheduleNoticeProps) {
   const [secondsLeft, setSecondsLeft] = useState<number>(schedule.secondsUntilOpen);
+  const isEn = lang === 'EN';
 
   useEffect(() => {
     setSecondsLeft(schedule.secondsUntilOpen);
@@ -51,6 +55,10 @@ export function AttendanceScheduleNotice({
   const minutes = Math.floor((secondsLeft % 3600) / 60);
   const seconds = secondsLeft % 60;
 
+  const nextDesc = isEn
+    ? schedule.nextSessionDescEn || schedule.nextSessionDescId
+    : schedule.nextSessionDescId;
+
   // ── Manual Disabled by Admin ───────────────────────────────────────────────
   if (isManuallyDisabled) {
     return (
@@ -59,28 +67,30 @@ export function AttendanceScheduleNotice({
           <IoLockClosedOutline className="h-8 w-8" />
         </div>
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-semibold mb-3">
-          <span>Presensi Dinonaktifkan</span>
+          <span>{isEn ? 'Attendance Disabled' : 'Presensi Dinonaktifkan'}</span>
           <span>•</span>
-          <span className="font-arabic">مغلق مؤقتاً</span>
+          <span className="font-arabic font-normal">مغلق مؤقتاً</span>
         </div>
         <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-          Presensi Sedang Ditutup
+          {isEn ? 'Attendance is Closed' : 'Presensi Sedang Ditutup'}
         </h2>
         <p className="text-sm font-bold text-amber-700 font-arabic mt-1">
           تم إيقاف رابط الحضور مؤقتاً من قبل الإدارة
         </p>
         <p className="mt-4 text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
-          Gerbang presensi untuk sesi <span className="font-bold text-slate-800">&ldquo;{sessionTitle}&rdquo;</span> saat ini sedang dinonaktifkan sementara oleh Admin.
+          {isEn
+            ? `The attendance gate for session "${sessionTitle}" is currently disabled by Admin.`
+            : `Gerbang presensi untuk sesi "${sessionTitle}" saat ini sedang dinonaktifkan sementara oleh Admin.`}
         </p>
         <div className="mt-6 pt-5 border-t border-slate-100">
           <a
             href="https://wa.me/6281234567890?text=Assalamu'alaikum%20Admin%20FKA,%20saya%20ingin%20menanyakan%20status%20presensi%20halaqah%20saya."
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all"
+            className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
           >
             <IoLogoWhatsapp className="h-4 w-4" />
-            <span>Hubungi Admin via WhatsApp</span>
+            <span>{isEn ? 'Contact Admin via WhatsApp' : 'Hubungi Admin via WhatsApp'}</span>
           </a>
         </div>
       </div>
@@ -97,13 +107,13 @@ export function AttendanceScheduleNotice({
 
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-3">
           <IoTimeOutline className="h-3.5 w-3.5 text-indigo-600" />
-          <span>Menunggu Waktu Buka</span>
+          <span>{isEn ? 'Waiting for Session Gate' : 'Menunggu Waktu Buka'}</span>
           <span className="text-indigo-300">•</span>
           <span className="font-arabic font-normal">يفتح قريباً</span>
         </div>
 
         <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-          Presensi Segera Dibuka
+          {isEn ? 'Attendance Will Open Soon' : 'Presensi Segera Dibuka'}
         </h2>
         <p className="text-sm font-bold text-indigo-600 font-arabic mt-1">
           سيتم فتح تسجيل الحضور تلقائياً في الموعد المحدد
@@ -115,19 +125,25 @@ export function AttendanceScheduleNotice({
             <span className="text-2xl sm:text-3xl font-black text-indigo-600 font-mono tracking-tight">
               {hours.toString().padStart(2, '0')}
             </span>
-            <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">Jam / س</span>
+            <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">
+              {isEn ? 'Hours / س' : 'Jam / س'}
+            </span>
           </div>
           <div className="bg-slate-50 border border-slate-200/80 rounded-2xl py-3 px-2 flex flex-col items-center">
             <span className="text-2xl sm:text-3xl font-black text-indigo-600 font-mono tracking-tight">
               {minutes.toString().padStart(2, '0')}
             </span>
-            <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">Menit / د</span>
+            <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">
+              {isEn ? 'Mins / د' : 'Menit / د'}
+            </span>
           </div>
           <div className="bg-slate-50 border border-slate-200/80 rounded-2xl py-3 px-2 flex flex-col items-center">
             <span className="text-2xl sm:text-3xl font-black text-indigo-600 font-mono tracking-tight">
               {seconds.toString().padStart(2, '0')}
             </span>
-            <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">Detik / ث</span>
+            <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">
+              {isEn ? 'Secs / ث' : 'Detik / ث'}
+            </span>
           </div>
         </div>
 
@@ -135,15 +151,23 @@ export function AttendanceScheduleNotice({
         <div className="mt-6 p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100/80 text-start space-y-2">
           <div className="flex items-center gap-2 text-xs font-bold text-indigo-950">
             <IoCalendarOutline className="h-4 w-4 text-indigo-600 shrink-0" />
-            <span>Jadwal Pembelajaran: {schedule.startFormatted}</span>
+            <span>
+              {isEn
+                ? `Class Schedule: ${schedule.startFormatted}`
+                : `Jadwal Pembelajaran: ${schedule.startFormatted}`}
+            </span>
           </div>
           <p className="text-[11px] text-slate-600 leading-relaxed">
-            Presensi dibuka <span className="font-semibold text-indigo-700">{schedule.openMinutesBefore} menit</span> sebelum kelas dimulai (pukul <span className="font-semibold text-slate-800">{schedule.openFormatted}</span>) dan ditutup otomatis saat pembelajaran selesai (pukul <span className="font-semibold text-slate-800">{schedule.closeFormatted}</span>).
+            {isEn
+              ? `Attendance opens ${schedule.openMinutesBefore} minutes before class begins (at ${schedule.openFormatted}) and closes automatically when the session ends (at ${schedule.closeFormatted}).`
+              : `Presensi dibuka ${schedule.openMinutesBefore} menit sebelum kelas dimulai (pukul ${schedule.openFormatted}) dan ditutup otomatis saat pembelajaran selesai (pukul ${schedule.closeFormatted}).`}
           </p>
         </div>
 
         <p className="mt-4 text-[11px] text-slate-400">
-          Halaman ini akan terbuka otomatis saat waktu presensi tiba tanpa perlu dimuat ulang.
+          {isEn
+            ? 'This page will automatically unlock when attendance starts without needing to refresh.'
+            : 'Halaman ini akan terbuka otomatis saat waktu presensi tiba tanpa perlu dimuat ulang.'}
         </p>
       </div>
     );
@@ -158,30 +182,32 @@ export function AttendanceScheduleNotice({
         </div>
 
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-100 text-rose-700 text-xs font-semibold mb-3">
-          <span>Sesi Hari Ini Selesai</span>
+          <span>{isEn ? "Today's Session Ended" : 'Sesi Hari Ini Selesai'}</span>
           <span className="text-rose-300">•</span>
           <span className="font-arabic font-normal">انتهت الجلسة</span>
         </div>
 
         <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-          Presensi Telah Ditutup
+          {isEn ? 'Attendance is Closed' : 'Presensi Telah Ditutup'}
         </h2>
         <p className="text-sm font-bold text-rose-600 font-arabic mt-1">
           انتهت جلسة تسجيل الحضور لهذا اليوم
         </p>
 
         <p className="mt-4 text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
-          Pembelajaran untuk sesi <span className="font-bold text-slate-800">&ldquo;{sessionTitle}&rdquo;</span> telah selesai pada pukul <span className="font-bold text-slate-900">{schedule.closeFormatted}</span>.
+          {isEn
+            ? `The class session for "${sessionTitle}" ended at ${schedule.closeFormatted}.`
+            : `Pembelajaran untuk sesi "${sessionTitle}" telah selesai pada pukul ${schedule.closeFormatted}.`}
         </p>
 
         {/* Next Session Box */}
         <div className="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-start space-y-1.5">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            Jadwal Presensi Berikutnya:
+            {isEn ? 'Next Attendance Schedule:' : 'Jadwal Presensi Berikutnya:'}
           </span>
           <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-800">
             <IoCalendarOutline className="h-4 w-4 text-indigo-600 shrink-0" />
-            <span>{schedule.nextSessionDescId}</span>
+            <span>{nextDesc}</span>
           </div>
           <p className="text-[11px] text-slate-500 font-arabic pt-0.5" dir="rtl">
             {schedule.nextSessionDescAr}
@@ -193,10 +219,14 @@ export function AttendanceScheduleNotice({
             href="https://wa.me/6281234567890?text=Assalamu'alaikum%20Admin%20FKA,%20saya%20terlambat%20mengisi%20presensi%20halaqah."
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all"
+            className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
           >
             <IoLogoWhatsapp className="h-4 w-4" />
-            <span>Konfirmasi Keterlambatan ke Admin</span>
+            <span>
+              {isEn
+                ? 'Confirm Late Attendance via WhatsApp'
+                : 'Konfirmasi Keterlambatan ke Admin'}
+            </span>
           </a>
         </div>
       </div>
@@ -211,30 +241,32 @@ export function AttendanceScheduleNotice({
       </div>
 
       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-3">
-        <span>Di Luar Jadwal</span>
+        <span>{isEn ? 'Outside Class Schedule' : 'Di Luar Jadwal'}</span>
         <span className="text-indigo-300">•</span>
         <span className="font-arabic font-normal">خارج أوقات الحلقة</span>
       </div>
 
       <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-        Tidak Ada Pertemuan Hari Ini
+        {isEn ? 'No Class Scheduled Today' : 'Tidak Ada Pertemuan Hari Ini'}
       </h2>
       <p className="text-sm font-bold text-indigo-600 font-arabic mt-1">
         لا توجد جلسة مخصصة للحلقة في هذا اليوم
       </p>
 
       <p className="mt-4 text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
-        Laman presensi untuk halaqah <span className="font-bold text-slate-800">&ldquo;{sessionTitle}&rdquo;</span> hanya dapat diisi pada hari dan jam yang telah dijadwalkan.
+        {isEn
+          ? `The attendance gate for halaqah "${sessionTitle}" is only accessible during scheduled days and times.`
+          : `Laman presensi untuk halaqah "${sessionTitle}" hanya dapat diisi pada hari dan jam yang telah dijadwalkan.`}
       </p>
 
       {/* Next Session Box */}
       <div className="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-start space-y-1.5">
         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-          Pertemuan Selanjutnya:
+          {isEn ? 'Next Scheduled Meeting:' : 'Pertemuan Selanjutnya:'}
         </span>
         <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-800">
           <IoCheckmarkCircleOutline className="h-4 w-4 text-emerald-600 shrink-0" />
-          <span>{schedule.nextSessionDescId}</span>
+          <span>{nextDesc}</span>
         </div>
         <p className="text-[11px] text-slate-500 font-arabic pt-0.5" dir="rtl">
           {schedule.nextSessionDescAr}
@@ -246,10 +278,12 @@ export function AttendanceScheduleNotice({
           href="https://wa.me/6281234567890?text=Assalamu'alaikum%20Admin%20FKA,%20saya%20ingin%20menanyakan%20jadwal%20halaqah%20saya."
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all"
+          className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
         >
           <IoLogoWhatsapp className="h-4 w-4" />
-          <span>Tanya Jadwal via WhatsApp Admin</span>
+          <span>
+            {isEn ? 'Inquire Schedule via WhatsApp Admin' : 'Tanya Jadwal via WhatsApp Admin'}
+          </span>
         </a>
       </div>
     </div>

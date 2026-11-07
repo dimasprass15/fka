@@ -4,11 +4,15 @@ import React from "react";
 import { IoSparkles } from "react-icons/io5";
 import {
   translateDaysToAr,
+  translateDaysToEn,
   translateTimeToAr,
   translateCategoryToAr,
+  translateCategoryToEn,
   translateTitleToAr,
   translateTeacherNameToAr,
   translateAnnouncementToAr,
+  translateAnnouncementToEn,
+  type SupportedGateLang,
 } from "@/lib/attendance.utils";
 import type { AttendanceSession } from "@/lib/supabase";
 
@@ -18,6 +22,7 @@ interface AttendanceFormHeaderProps {
   formDesc?: string;
   badgeText: { primary: string; ar: string };
   teacherText: { primary: string; ar: string };
+  lang?: SupportedGateLang;
 }
 
 export default function AttendanceFormHeader({
@@ -26,7 +31,18 @@ export default function AttendanceFormHeader({
   formDesc,
   badgeText,
   teacherText,
+  lang = "ID",
 }: AttendanceFormHeaderProps) {
+  const isEn = lang === "EN";
+  const displayCategory = isEn
+    ? translateCategoryToEn(session.halaqahs?.category) || badgeText.primary
+    : session.halaqahs?.category || badgeText.primary;
+  const displayDays = isEn
+    ? translateDaysToEn(session.halaqahs?.days_label)
+    : session.halaqahs?.days_label;
+  const displayAnnouncement = isEn
+    ? translateAnnouncementToEn(formDesc)
+    : formDesc;
   return (
     <div className="mb-5 sm:mb-6 text-center border-b border-slate-100 pb-5">
       {/* Metadata Chips (Category, Day, Time) */}
@@ -34,7 +50,7 @@ export default function AttendanceFormHeader({
         {/* Category Chip */}
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold">
           <IoSparkles className="h-3.5 w-3.5 shrink-0 text-indigo-500" />
-          <span>{session.halaqahs?.category || badgeText.primary}</span>
+          <span>{displayCategory}</span>
           <span className="text-indigo-300">•</span>
           <span className="font-arabic font-normal text-indigo-600">
             {translateCategoryToAr(session.halaqahs?.category) || badgeText.ar}
@@ -42,12 +58,12 @@ export default function AttendanceFormHeader({
         </div>
 
         {/* Day Chip */}
-        {session.halaqahs?.days_label && (
+        {displayDays && (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-slate-700 text-xs font-medium">
-            <span>📅 {session.halaqahs.days_label}</span>
+            <span>📅 {displayDays}</span>
             <span className="text-slate-300">•</span>
             <span className="font-arabic text-slate-500">
-              {translateDaysToAr(session.halaqahs.days_label)}
+              {translateDaysToAr(session.halaqahs?.days_label)}
             </span>
           </div>
         )}
@@ -91,12 +107,12 @@ export default function AttendanceFormHeader({
       )}
 
       {/* Announcement Box */}
-      {formDesc && (
+      {displayAnnouncement && (
         <div className="mt-4 p-3.5 sm:p-4 rounded-2xl bg-amber-50/70 border border-amber-200/70 text-start flex items-start gap-2.5">
           <span className="text-amber-600 text-sm mt-0.5 shrink-0">ℹ️</span>
           <div className="flex-1 min-w-0">
             <p className="text-xs sm:text-sm font-medium text-slate-800 leading-relaxed">
-              {formDesc}
+              {displayAnnouncement}
             </p>
             <p className="text-[11px] sm:text-xs text-slate-500 font-arabic leading-relaxed pt-1.5 mt-1.5 border-t border-amber-200/50">
               {translateAnnouncementToAr(formDesc)}

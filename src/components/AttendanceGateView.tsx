@@ -186,7 +186,11 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
       const currentSchedule = computeSchedule();
       if (currentSchedule && !currentSchedule.isOpen) {
         setSchedule(currentSchedule);
-        throw new Error('Waktu presensi untuk pertemuan ini telah berakhir.');
+        throw new Error(
+          activeLang === 'EN'
+            ? 'Attendance for this session is currently closed.'
+            : 'Waktu presensi untuk pertemuan ini telah berakhir.'
+        );
       }
 
       let currentStudent = student;
@@ -194,7 +198,11 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
       const formattedPhone = sanitizePhoneNumber(rawPhone);
 
       if (formattedPhone.length < 9 || formattedPhone.length > 20) {
-        throw new Error('Nomor WhatsApp tidak valid. Mohon masukkan nomor aktif yang benar.');
+        throw new Error(
+          activeLang === 'EN'
+            ? 'Invalid WhatsApp number. Please enter a valid active number.'
+            : 'Nomor WhatsApp tidak valid. Mohon masukkan nomor aktif yang benar.'
+        );
       }
 
       const rawFullName = currentStudent
@@ -203,7 +211,11 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
       const studentFullName = sanitizeInputText(rawFullName, 80);
 
       if (!studentFullName.trim()) {
-        throw new Error('Mohon lengkapi nama Anda pada formulir.');
+        throw new Error(
+          activeLang === 'EN'
+            ? 'Please complete your name on the form.'
+            : 'Mohon lengkapi nama Anda pada formulir.'
+        );
       }
 
       if (!currentStudent) {
@@ -322,6 +334,7 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
             schedule={fallbackSchedule}
             sessionTitle={session.title}
             isManuallyDisabled={isManuallyClosed}
+            lang={activeLang}
             onAutoUnlock={() => setSchedule(computeSchedule())}
           />
         </main>
@@ -356,6 +369,7 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
             formDesc={formDesc}
             badgeText={badgeText}
             teacherText={teacherText}
+            lang={activeLang}
           />
 
           {errorMessage && (
