@@ -18,6 +18,7 @@ export function middleware(request: NextRequest) {
     // Jika mengakses halaman profil umum di subdomain presensi, arahkan ke landing page
     if (
       pathname.startsWith("/program") ||
+      pathname.startsWith("/pustaka") ||
       pathname.startsWith("/tentang-kami") ||
       pathname.startsWith("/kontak-kami")
     ) {
@@ -37,6 +38,7 @@ export function middleware(request: NextRequest) {
     const isLandingPageRoute =
       pathname === "/" ||
       pathname.startsWith("/program") ||
+      pathname.startsWith("/pustaka") ||
       pathname.startsWith("/tentang-kami") ||
       pathname.startsWith("/kontak-kami") ||
       /^\/[1-8]$/.test(pathname);
