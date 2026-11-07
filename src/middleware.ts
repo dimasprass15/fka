@@ -11,9 +11,9 @@ export function middleware(request: NextRequest) {
 
   // 1. Logika untuk Subdomain Presensi (presensi.fastabiq.site)
   if (isPresensiSubdomain) {
-    // Jika root tanpa slug (https://presensi.fastabiq.site/), arahkan ke landing page utama
+    // Jika root tanpa slug (https://presensi.fastabiq.site/), tampilkan Laman Portal Presensi Private
     if (pathname === "/") {
-      return NextResponse.redirect(new URL("https://fastabiq.site", request.url));
+      return NextResponse.rewrite(new URL("/presensi", request.url));
     }
     // Jika mengakses halaman profil umum di subdomain presensi, arahkan ke landing page
     if (
@@ -57,3 +57,4 @@ export const config = {
     "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
+
