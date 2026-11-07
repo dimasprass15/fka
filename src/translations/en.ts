@@ -3,6 +3,7 @@ export const enTranslations = {
     home: "Home",
     about: "About Us",
     program: "Programs",
+    pustaka: "Knowledge Hub",
     contact: "Contact Us",
   },
   hero: {
@@ -320,6 +321,33 @@ export const enTranslations = {
       submitting: "Registering...",
       success: "Registration successful! We will contact you soon.",
       error: "An error occurred. Please try again.",
+    },
+  },
+  pustaka: {
+    title: "Knowledge Hub",
+    titleHighlight: "FKA",
+    subtitle: "Sanad-Based Knowledge & Audio-Visual Treasury",
+    description:
+      "A curated collection of Tajweed treatises, audio recordings of letter articulations and mutun, and video lectures under the guidance of Syaikhah Abeer Utsman Al-Yamaniyyah.",
+    searchPlaceholder:
+      "Search treatises, talaqqi audio, mutun, or video lectures...",
+    filters: {
+      all: "All",
+      article: "Articles & Notes",
+      audio: "Audio Talaqqi & Mutun",
+      video: "Video Lectures",
+    },
+    labels: {
+      readTime: "min read",
+      readButton: "Read Treatise →",
+      playAudio: "Play Audio",
+      playMatan: "Play Mutun",
+      watchVideo: "Watch Video ▶",
+      empty: "No content matches your search query.",
+      teacher: "Syaikhah Abeer Utsman Al-Yamaniyyah",
+      close: "Close",
+      nowPlaying: "Now Playing Audio...",
+      clearAudio: "Close Player",
     },
   },
 };

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ID, SA, GB } from "country-flag-icons/react/3x2";
-import { Home as HomeIcon, Info, BookOpen, Phone } from "lucide-react";
+import { Home as HomeIcon, Info, BookOpen, Library, Phone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 
@@ -32,6 +32,7 @@ export default function Navigation() {
     { id: "home", label: t.nav.home, icon: HomeIcon, href: "/" },
     { id: "about", label: t.nav.about, icon: Info, href: "/tentang-kami" },
     { id: "program", label: t.nav.program, icon: BookOpen, href: "/program" },
+    { id: "pustaka", label: t.nav.pustaka, icon: Library, href: "/pustaka" },
     { id: "contact", label: t.nav.contact, icon: Phone, href: "/kontak-kami" },
   ];
 
@@ -183,7 +184,7 @@ export default function Navigation() {
             <Link
               key={item.id}
               href={item.href}
-              className={`flex flex-col items-center gap-1 px-4 py-3 transition-colors ${
+              className={`flex flex-col items-center gap-1 px-2 py-2.5 sm:px-4 sm:py-3 transition-colors ${
                 isActive
                   ? "text-emerald-700"
                   : "text-slate-600 hover:text-emerald-600"

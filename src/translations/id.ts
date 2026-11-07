@@ -3,6 +3,7 @@ export const idTranslations = {
     home: "Beranda",
     about: "Tentang Kami",
     program: "Program",
+    pustaka: "Pustaka Ilmu",
     contact: "Kontak Kami",
   },
   hero: {
@@ -320,6 +321,33 @@ export const idTranslations = {
       submitting: "Mendaftar...",
       success: "Pendaftaran berhasil! Kami akan menghubungi Anda segera.",
       error: "Terjadi kesalahan. Silakan coba lagi.",
+    },
+  },
+  pustaka: {
+    title: "Pustaka Ilmu",
+    titleHighlight: "FKA",
+    subtitle: "Khazanah Keilmuan & Audio-Visual Bersanad",
+    description:
+      "Kumpulan risalah tajwid, rekaman suara talaqqi makharijul huruf, serta video kajian ilmiah di bawah bimbingan Syaikhah Abeer Utsman Al-Yamaniyyah.",
+    searchPlaceholder:
+      "Cari risalah ilmu, audio talaqqi, matan, atau video kajian...",
+    filters: {
+      all: "Semua",
+      article: "Risalah & Tulisan",
+      audio: "Audio Talaqqi & Matan",
+      video: "Video Kajian",
+    },
+    labels: {
+      readTime: "mnt baca",
+      readButton: "Baca Risalah →",
+      playAudio: "Putar Audio",
+      playMatan: "Putar Matan",
+      watchVideo: "Tonton Video ▶",
+      empty: "Tidak ada konten yang sesuai dengan pencarian Anda.",
+      teacher: "Syaikhah Abeer Utsman Al-Yamaniyyah",
+      close: "Tutup",
+      nowPlaying: "Sedang Memutar Audio...",
+      clearAudio: "Tutup Player",
     },
   },
 };
