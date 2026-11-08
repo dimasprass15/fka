@@ -81,7 +81,7 @@ export default function AttendanceGateSuccess({
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto rounded-3xl bg-white p-6 sm:p-8 shadow-xl border border-indigo-50/80 text-left">
+    <div dir="ltr" className="w-full max-w-xl mx-auto rounded-3xl bg-white p-6 sm:p-8 shadow-xl border border-indigo-50/80 text-left">
       {/* Top Success Badge */}
       <div className="flex flex-col items-center text-center mb-6">
         <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 mb-3 sm:mb-4 animate-bounce shrink-0">

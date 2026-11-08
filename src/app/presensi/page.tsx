@@ -65,7 +65,7 @@ export default function PresensiPrivatePortalPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F8FC] text-slate-900 py-6 sm:py-8 px-4 flex flex-col justify-between items-center">
+    <div dir="ltr" className="min-h-screen bg-[#F6F8FC] text-slate-900 py-6 sm:py-8 px-4 flex flex-col justify-between items-center text-left">
       {/* ── Top Header with 2-Flag Capsule Switcher (ID & EN) ───────────────── */}
       <header className="max-w-md w-full flex items-center justify-between pt-2 pb-6">
         <div className="flex items-center gap-3 text-left">

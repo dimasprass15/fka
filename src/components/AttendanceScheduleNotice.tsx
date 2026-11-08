@@ -154,7 +154,7 @@ export function AttendanceScheduleNotice({
         </div>
 
         {/* Schedule Info Box */}
-        <div className="mt-6 p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100/80 text-start space-y-2">
+        <div className="mt-6 p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100/80 text-left space-y-2">
           <div className="flex items-center gap-2 text-xs font-bold text-indigo-950">
             <IoCalendarOutline className="h-4 w-4 text-indigo-600 shrink-0" />
             <span>
@@ -278,7 +278,7 @@ export function AttendanceScheduleNotice({
       </p>
 
       {/* Next Session Box */}
-      <div className="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-start space-y-1.5">
+      <div className="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-left space-y-1.5">
         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
           {isEn ? 'Next Scheduled Meeting:' : 'Pertemuan Selanjutnya:'}
         </span>

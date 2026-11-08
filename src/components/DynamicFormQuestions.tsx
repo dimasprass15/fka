@@ -36,7 +36,7 @@ export default function DynamicFormQuestions({
   const femaleText = getDualText("genderFemale", lang);
 
   return (
-    <div className="space-y-3.5 sm:space-y-4">
+    <div dir="ltr" className="space-y-3.5 sm:space-y-4 text-left">
       {fields.map((field, idx) => {
         const val = answers[field.id] || "";
         const isPhone =
@@ -160,7 +160,7 @@ export default function DynamicFormQuestions({
                         key={key}
                         type="button"
                         onClick={() => onAnswerChange(field.id, opt.primary)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl border text-start transition-all ${
+                        className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
                           isSelected
                             ? "border-indigo-600 bg-indigo-50/70 text-indigo-900 shadow-sm ring-1 ring-indigo-500/30"
                             : "border-slate-200 text-slate-700 hover:bg-slate-50"
@@ -203,7 +203,7 @@ export default function DynamicFormQuestions({
                         key={opt}
                         type="button"
                         onClick={() => onAnswerChange(field.id, opt)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl border text-start transition-all ${
+                        className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
                           isSelected
                             ? "border-indigo-600 bg-indigo-50/70 text-indigo-900 shadow-sm ring-1 ring-indigo-500/30"
                             : "border-slate-200 text-slate-700 hover:bg-slate-50"

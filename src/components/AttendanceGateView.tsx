@@ -192,6 +192,17 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
   );
 
   useEffect(() => {
+    // Laman presensi WAJIB ber-layout Bahasa Indonesia (ID) & LTR secara default
+    const savedGate = typeof window !== 'undefined' ? localStorage.getItem('fka_gate_lang') : null;
+    const targetLang = savedGate === 'EN' ? 'EN' : 'ID';
+    if (language !== targetLang) {
+      setLanguage(targetLang);
+    }
+    document.documentElement.setAttribute('dir', 'ltr');
+    document.documentElement.setAttribute('lang', targetLang.toLowerCase());
+  }, [language, setLanguage]);
+
+  useEffect(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('fka_student_phone') : null;
     if (saved) {
       const sanitized = sanitizePhoneNumber(saved);
@@ -202,6 +213,16 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
       });
     }
   }, [lookupPhone, phoneField.id]);
+
+  const handleSelectGateLang = (newLang: 'AR' | 'ID' | 'EN') => {
+    const validGateLang = newLang === 'EN' ? 'EN' : 'ID';
+    setLanguage(validGateLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('fka_gate_lang', validGateLang);
+    }
+    document.documentElement.setAttribute('dir', 'ltr');
+    document.documentElement.setAttribute('lang', validGateLang.toLowerCase());
+  };
 
   const handleAnswerChange = (fieldId: string, value: string) => {
     const sanitizedVal = sanitizeInputText(value, 200, false);
@@ -342,7 +363,7 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
   // ── Render Case 0: Auto-Checking Attendance Spinner ─────────────────────────
   if (isAutoChecking && !isSuccessView) {
     return (
-      <div className="min-h-screen bg-[#F6F8FC] py-8 px-4 flex flex-col items-center justify-center text-center">
+      <div dir="ltr" className="min-h-screen bg-[#F6F8FC] py-8 px-4 flex flex-col items-center justify-center text-center text-left">
         <div className="w-12 h-12 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin mb-4" />
         <h3 className="text-base font-bold text-slate-800">
           {activeLang === 'EN' ? 'Connecting to Halaqah...' : 'Menghubungkan ke Halaqah...'}
@@ -362,7 +383,7 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
   // ── Render Case 1: Attendance Success / Reconnect Direct View ───────────────
   if (isSuccessView && student) {
     return (
-      <div className="min-h-screen bg-[#F6F8FC] py-8 sm:py-12 px-3 sm:px-4 flex items-center justify-center">
+      <div dir="ltr" className="min-h-screen bg-[#F6F8FC] py-8 sm:py-12 px-3 sm:px-4 flex items-center justify-center text-left">
         <AttendanceGateSuccess
           session={session}
           student={student}
@@ -392,7 +413,7 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
         isManuallyClosed={isManuallyClosed}
         activeLang={activeLang}
         titleSuffix={titleSuffix}
-        onSelectLang={setLanguage}
+        onSelectLang={handleSelectGateLang}
         onAutoUnlock={() => setSchedule(computeSchedule())}
       />
     );
@@ -405,13 +426,13 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
     : fields;
 
   return (
-    <div className="min-h-screen bg-[#F6F8FC] text-slate-900 py-4 sm:py-8 px-3.5 sm:px-6 flex flex-col justify-between">
+    <div dir="ltr" className="min-h-screen bg-[#F6F8FC] text-slate-900 py-4 sm:py-8 px-3.5 sm:px-6 flex flex-col justify-between text-left">
       <AttendanceGateHeader
         slug={session.slug}
         titlePrimary={titleSuffix.primary}
         titleAr={titleSuffix.ar}
         activeLang={activeLang}
-        onSelectLang={setLanguage}
+        onSelectLang={handleSelectGateLang}
       />
 
       <main className="max-w-xl mx-auto w-full my-auto">

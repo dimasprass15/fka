@@ -19,12 +19,32 @@ const STORAGE_KEY = "fka_user_lang_v2";
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     if (typeof window !== "undefined") {
+      const host = window.location.hostname;
+      const path = window.location.pathname;
+
+      // Khusus sub-domain presensi atau rute form presensi halaqah: WAJIB Indonesia dulu!
+      if (
+        host.includes("presensi") ||
+        path.startsWith("/presensi") ||
+        (path.length > 1 && !path.startsWith("/pustaka") && !path.startsWith("/program") && !path.startsWith("/tentang-kami") && !path.startsWith("/kontak-kami"))
+      ) {
+        const savedGate = localStorage.getItem("fka_gate_lang");
+        if (savedGate === "EN") return "EN";
+        return "ID";
+      }
+
       const savedLang = localStorage.getItem(STORAGE_KEY) as Language;
       if (savedLang === "ID" || savedLang === "AR" || savedLang === "EN") {
         return savedLang;
       }
+
+      // Deteksi browser: jika dari Indonesia, prioritaskan Indonesia (ID)
+      const nav = navigator.language?.toLowerCase() || "";
+      if (nav.startsWith("id")) return "ID";
+      if (nav.startsWith("en")) return "EN";
+      if (nav.startsWith("ar")) return "AR";
     }
-    return "AR";
+    return "ID";
   });
 
   const setLanguage = (lang: Language) => {

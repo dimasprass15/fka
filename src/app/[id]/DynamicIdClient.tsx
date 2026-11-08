@@ -38,6 +38,17 @@ export default function DynamicIdClient({
   // Check if ID is a legacy numeric poster ID (1 to 8)
   const isNumericPoster = /^[1-8]$/.test(rawId);
 
+  useEffect(() => {
+    // Rute presensi halaqah WAJIB ber-layout Indonesia (ID) & LTR secara default
+    if (!isNumericPoster) {
+      if (language === "AR") {
+        setLanguage("ID");
+      }
+      document.documentElement.setAttribute("dir", "ltr");
+      document.documentElement.setAttribute("lang", language === "EN" ? "en" : "id");
+    }
+  }, [isNumericPoster, language, setLanguage]);
+
   const [session, setSession] = useState<AttendanceSession | null>(
     initialSession !== undefined ? initialSession : null
   );

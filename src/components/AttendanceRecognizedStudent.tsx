@@ -22,7 +22,7 @@ export function AttendanceRecognizedStudent({
   onReset,
 }: AttendanceRecognizedStudentProps) {
   return (
-    <div className="rounded-2xl bg-gradient-to-br from-indigo-50/70 to-cyan-50/40 border border-indigo-100 p-4 sm:p-5 space-y-2.5">
+    <div dir="ltr" className="rounded-2xl bg-gradient-to-br from-indigo-50/70 to-cyan-50/40 border border-indigo-100 p-4 sm:p-5 space-y-2.5 text-left">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-indigo-700 text-xs font-bold uppercase tracking-wider">
           <IoShieldCheckmark className="h-4 w-4 shrink-0 text-indigo-600" />

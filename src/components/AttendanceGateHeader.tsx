@@ -38,7 +38,7 @@ export function AttendanceGateHeader({
             priority
           />
         </div>
-        <div className="flex flex-col text-start">
+        <div className="flex flex-col text-left">
           <span className="font-bold text-xs sm:text-sm tracking-tight text-slate-800 group-hover:text-indigo-600 transition-colors">
             {titlePrimary}
           </span>

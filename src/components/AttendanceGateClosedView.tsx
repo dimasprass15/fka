@@ -27,7 +27,7 @@ export default function AttendanceGateClosedView({
   onAutoUnlock,
 }: AttendanceGateClosedViewProps) {
   return (
-    <div className="min-h-screen bg-[#F6F8FC] text-slate-900 py-4 sm:py-8 px-3.5 sm:px-6 flex flex-col justify-between">
+    <div dir="ltr" className="min-h-screen bg-[#F6F8FC] text-slate-900 py-4 sm:py-8 px-3.5 sm:px-6 flex flex-col justify-between text-left">
       <AttendanceGateHeader
         slug={session.slug}
         titlePrimary={titleSuffix.primary}
