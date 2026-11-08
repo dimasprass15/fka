@@ -4,6 +4,7 @@ import DynamicIdClient from "./DynamicIdClient";
 
 type Props = {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 function getCategoryDefaultImage(category?: string): string {
@@ -156,10 +157,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function DynamicIdPage({ params }: Props) {
+export default async function DynamicIdPage({ params, searchParams }: Props) {
   const { id } = await params;
   const rawId = (id || "").trim();
   const session = await fetchSessionServer(rawId);
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const isTeacher = resolvedSearchParams.role === "pengajar";
 
-  return <DynamicIdClient rawId={rawId} initialSession={session} />;
+  return (
+    <DynamicIdClient
+      rawId={rawId}
+      initialSession={session}
+      isTeacher={isTeacher}
+    />
+  );
 }

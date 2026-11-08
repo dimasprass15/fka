@@ -8,6 +8,7 @@ import {
 } from "react-icons/io5";
 import PosterDetailView from "@/components/PosterDetailView";
 import AttendanceGateView from "@/components/AttendanceGateView";
+import TeacherGateView from "@/components/TeacherGateView";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   getDualText,
@@ -18,13 +19,25 @@ import { supabase, type AttendanceSession } from "@/lib/supabase";
 interface DynamicIdClientProps {
   rawId: string;
   initialSession?: AttendanceSession | null;
+  isTeacher?: boolean;
 }
 
 export default function DynamicIdClient({
   rawId,
   initialSession,
+  isTeacher = false,
 }: DynamicIdClientProps) {
   const { language, setLanguage } = useLanguage();
+  const [effectiveIsTeacher, setEffectiveIsTeacher] = useState<boolean>(isTeacher);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      if (sp.get("role") === "pengajar") {
+        setEffectiveIsTeacher(true);
+      }
+    }
+  }, []);
   const activeLang: SupportedGateLang = language === "EN" ? "EN" : "ID";
 
   const inactiveBadge = getDualText("sessionInactiveBadge", activeLang);
@@ -121,8 +134,11 @@ export default function DynamicIdClient({
     </div>
   );
 
-  // 1. Sesi Absensi Aktif -> Tampilkan Form Presensi & Gerbang Masuk Zoom
+  // 1. Sesi Absensi Aktif -> Tampilkan Gerbang Pengajar atau Presensi Santri
   if (session && session.is_active) {
+    if (effectiveIsTeacher) {
+      return <TeacherGateView session={session} />;
+    }
     return <AttendanceGateView session={session} />;
   }
 

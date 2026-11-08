@@ -48,6 +48,9 @@ export interface AttendanceSession {
     active_days?: number[];
   };
   is_active: boolean;
+  teacher_pin?: string;
+  teacher_joined_at?: string | null;
+  teacher_join_date?: string | null;
   created_at: string;
   halaqahs?: {
     id: string;
