@@ -2,6 +2,7 @@
 
 import React from "react";
 import { IoSparkles } from "react-icons/io5";
+import IslamicOpeningPrayer from "./IslamicOpeningPrayer";
 import {
   translateDaysToAr,
   translateDaysToEn,
@@ -45,6 +46,9 @@ export default function AttendanceFormHeader({
     : formDesc;
   return (
     <div className="mb-5 sm:mb-6 text-center border-b border-slate-100 pb-5">
+      {/* 0. Bismillah & Doa Sebelum Belajar */}
+      <IslamicOpeningPrayer lang={lang} />
+
       {/* Metadata Chips (Category, Day, Time) */}
       <div className="flex flex-wrap items-center justify-center gap-2 mb-3 sm:mb-4">
         {/* Category Chip */}

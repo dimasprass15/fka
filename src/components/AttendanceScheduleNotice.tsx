@@ -11,6 +11,7 @@ import {
 } from 'react-icons/io5';
 import type { SupportedGateLang } from '@/lib/attendance.utils';
 import { ScheduleWindowResult } from '@/lib/schedule.utils';
+import IslamicOpeningPrayer from './IslamicOpeningPrayer';
 
 interface AttendanceScheduleNoticeProps {
   schedule: ScheduleWindowResult;
@@ -107,6 +108,9 @@ export function AttendanceScheduleNotice({
   if (schedule.status === 'beforeOpen') {
     return (
       <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 border border-slate-100 text-center">
+        {/* 0. Bismillah & Doa Sebelum Belajar */}
+        <IslamicOpeningPrayer lang={lang} />
+
         <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 animate-pulse">
           <IoHourglassOutline className="h-8 w-8" />
         </div>
