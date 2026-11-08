@@ -96,14 +96,39 @@ export function translateTitleToAr(title?: string): string {
   }
 
   const t = title.toLowerCase();
+
+  // Qiraat / Qiroah / Asim / Hafs / Akhwat / Ikhwan
+  if (t.includes("qiraat") || t.includes("qira'at") || t.includes("qiroah") || t.includes("qiraah")) {
+    let q = "القراءات القرآنية";
+    if (t.includes("ashim") || t.includes("asim")) q = "قراءة عاصم";
+    else if (t.includes("hafs") || t.includes("hafsh")) q = "رواية حفص عن عاصم";
+    else if (t.includes("syu'bah") || t.includes("syubah")) q = "رواية شعبة عن عاصم";
+    else if (t.includes("nafi")) q = "قراءة نافع المدني";
+    else if (t.includes("warsy") || t.includes("warsh")) q = "رواية ورش عن نافع";
+    else if (t.includes("qalun") || t.includes("qolun")) q = "رواية قالون عن نافع";
+    else if (t.includes("sab'ah") || t.includes("tujuh")) q = "القراءات السبع";
+    else if (t.includes("asyarah") || t.includes("sepuluh")) q = "القراءات العشر";
+
+    const aud = t.includes("akhwat") ? " (للأخوات)" : t.includes("ikhwan") ? " (للإخوة)" : "";
+    if (t.includes("praktik") || t.includes("praktek") || t.includes("talaqqi")) {
+      return `مقرأة ${q}${aud}`;
+    }
+    return `حلقة ${q}${aud}`;
+  }
+
   if (t.includes("majelis sama syaikh") || t.includes("majelis sama syekh")) {
     return "مجلس السماع مع الشيخ";
   }
   if (t.includes("majelis sama")) return "مجلس السماع المبارك";
+  if (t.includes("tahsin") && t.includes("akhwat")) return "حلقة تحسين وتصحيح التلاوة (للأخوات)";
+  if (t.includes("tahsin") && t.includes("ikhwan")) return "حلقة تحسين وتصحيح التلاوة (للإخوة)";
   if (t.includes("tahsin") && (t.includes("dewasa") || t.includes("umum"))) return "حلقة تحسين التلاوة للكبار";
   if (t.includes("tahsin") && t.includes("anak")) return "حلقة تحسين التلاوة للأطفال";
   if (t.includes("tahsin")) return "حلقة تحسين وتصحيح التلاوة";
-  if (t.includes("tahfizh") || t.includes("tahfiz")) return "حلقة تحفيظ وضبط القرآن الكريم";
+  if (t.includes("tahfizh") || t.includes("tahfiz")) {
+    const aud = t.includes("akhwat") ? " (للأخوات)" : t.includes("ikhwan") ? " (للإخوة)" : "";
+    return `حلقة تحفيظ وضبط القرآن الكريم${aud}`;
+  }
   if (t.includes("khataman")) return "مجلس ختمة القرآن الكريم";
   if (t.includes("daurah")) return "الدورة العلمية الشرعية";
   if (t.includes("matan")) return "دراسة المتون العلمية";
@@ -114,65 +139,39 @@ export function translateTitleToAr(title?: string): string {
 }
 
 /**
- * Translates teacher name & title (e.g. "Syaikh Ahmad" -> "الشيخ أحمد").
+ * Translates teacher name & title (e.g. "Syaikh Ahmad" -> "الشيخ أحمد", "Syaikhah Samar" -> "الشيخة سمر").
  */
 export function translateTeacherNameToAr(teacher?: string): string {
   if (!teacher) return "";
   let res = teacher.trim();
 
-  res = res.replace(/^syaikh\s+/i, "الشيخ ");
-  res = res.replace(/^syekh\s+/i, "الشيخ ");
-  res = res.replace(/^sheikh\s+/i, "الشيخ ");
-  res = res.replace(/^ustadzah\s+/i, "الأستاذة ");
-  res = res.replace(/^ustazah\s+/i, "الأستاذة ");
-  res = res.replace(/^ustadz\s+/i, "الأستاذ ");
-  res = res.replace(/^ustaz\s+/i, "الأستاذ ");
-  res = res.replace(/^kyai\s+/i, "الشيخ المربي ");
+  res = res.replace(/^(syaikhah|sheikhah|syikhah|syekhah)\s+/i, "الشيخة ");
+  res = res.replace(/^(syaikh|sheikh|syikh|syekh)\s+/i, "الشيخ ");
+  res = res.replace(/^(ustadzah|ustazah|ustadza)\s+/i, "الأستاذة ");
+  res = res.replace(/^(ustadz|ustaz|ustad)\s+/i, "الأستاذ ");
+  res = res.replace(/^(kyai|kiai)\s+/i, "الشيخ ");
+  res = res.replace(/^(bu\s+nyai|bunyai)\s+/i, "الشيخة ");
   res = res.replace(/^dr\.\s*/i, "د. ");
 
   const nameMap: Record<string, string> = {
-    "ahmad": "أحمد",
-    "ahmed": "أحمد",
-    "muhammad": "محمد",
-    "mohammed": "محمد",
-    "abdullah": "عبد الله",
-    "abdurrahman": "عبد الرحمن",
-    "abdurrahim": "عبد الرحيم",
-    "abdul aziz": "عبد العزيز",
-    "ali": "علي",
-    "hasan": "حسن",
-    "hassan": "حسن",
-    "husain": "حسين",
-    "hussein": "حسين",
-    "ibrahim": "إبراهيم",
-    "khalid": "خالد",
-    "tariq": "طارق",
-    "yusuf": "يوسف",
-    "zaid": "زيد",
-    "fauzi": "فوزي",
-    "hamzah": "حمزة",
-    "hamza": "حمزة",
-    "salman": "سلمان",
-    "umar": "عمر",
-    "usman": "عثمان",
-    "othman": "عثمان",
-    "bilal": "بلال",
-    "yahya": "يحيى",
-    "zakariya": "زكريا",
-    "shalahuddin": "صلاح الدين",
-    "nuruddin": "نور الدين",
-    "faisal": "فيصل",
-    "adimas": "أديماس",
-    "prasetya": "براسيتيا",
+    samar: "سمر", sarah: "سارة", sara: "سارة", maryam: "مريم", mariam: "مريم",
+    fatimah: "فاطمة", fatima: "فاطمة", khadijah: "خديجة", aisyah: "عائشة", aisha: "عائشة",
+    asma: "أسماء", salma: "سلمى", huda: "هدى", amira: "أميرة", nura: "نورة",
+    iman: "إيمان", hanan: "حنان", yasmin: "ياسمين", layla: "ليلى", zainab: "زينب",
+    safiyyah: "صفية", hafshah: "حفصة", sumayyah: "سمية", ruqayyah: "رقية", hind: "هند",
+    ahmad: "أحمد", ahmed: "أحمد", muhammad: "محمد", mohammed: "محمد", abdullah: "عبد الله",
+    abdurrahman: "عبد الرحمن", abdurrahim: "عبد الرحيم", abdulaziz: "عبد العزيز", ali: "علي",
+    hasan: "حسن", hassan: "حسن", husain: "حسين", hussein: "حسين", ibrahim: "إبراهيم",
+    khalid: "خالد", tariq: "طارق", yusuf: "يوسف", zaid: "زيد", fauzi: "فوزي",
+    hamzah: "حمزة", hamza: "حمزة", salman: "سلمان", umar: "عمر", usman: "عثمان",
+    bilal: "بلال", yahya: "يحيى", zakariya: "زكريا", shalahuddin: "صلاح الدين",
+    nuruddin: "نور الدين", faisal: "فيصل", dimas: "ديماس", adimas: "أديماس", prasetya: "براسيتيا",
   };
 
   const words = res.split(" ");
   const translatedWords = words.map((w) => {
     const clean = w.toLowerCase().replace(/[^a-z]/g, "");
-    if (nameMap[clean]) {
-      return nameMap[clean];
-    }
-    return w;
+    return nameMap[clean] || w;
   });
 
   return translatedWords.join(" ");
