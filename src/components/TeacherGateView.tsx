@@ -9,12 +9,16 @@ import {
   IoKey,
   IoVideocam,
   IoPersonOutline,
+  IoGlobeOutline,
 } from 'react-icons/io5';
 import {
   buildZoomAppUrl,
   buildZoomWebUrl,
   sanitizeInputText,
+  translateTitleToAr,
+  translateTeacherNameToAr,
 } from '@/lib/attendance.utils';
+import { teacherStrings, type TeacherGateLang } from '@/lib/teacher.strings';
 import { supabase, type AttendanceSession } from '@/lib/supabase';
 
 interface TeacherGateViewProps {
@@ -22,10 +26,48 @@ interface TeacherGateViewProps {
 }
 
 export default function TeacherGateView({ session }: TeacherGateViewProps) {
+  // 1. Language Priority: Default Arabic (AR), or restore saved preference
+  const [lang, setLang] = useState<TeacherGateLang>('AR');
+
+  useEffect(() => {
+    try {
+      const savedLang = localStorage.getItem('fka_teacher_lang') as TeacherGateLang | null;
+      if (savedLang && (savedLang === 'AR' || savedLang === 'ID' || savedLang === 'EN')) {
+        setLang(savedLang);
+      } else {
+        setLang('AR'); // Prioritas utama: Bahasa Arab
+      }
+    } catch {
+      setLang('AR');
+    }
+  }, []);
+
+  const handleLanguageChange = (newLang: TeacherGateLang) => {
+    setLang(newLang);
+    try {
+      localStorage.setItem('fka_teacher_lang', newLang);
+    } catch {
+      // Ignore if localStorage unavailable
+    }
+  };
+
+  const isRtl = lang === 'AR';
+  const t = teacherStrings[lang];
+
+  useEffect(() => {
+    document.documentElement.setAttribute('dir', isRtl ? 'rtl' : 'ltr');
+    document.documentElement.setAttribute('lang', lang.toLowerCase());
+  }, [isRtl, lang]);
+
   const teacherName =
     session.halaqahs?.teacher_name?.trim() ||
     session.title?.trim() ||
     'Syaikh / Pengampu';
+
+  const displayTeacherName =
+    lang === 'AR' ? translateTeacherNameToAr(teacherName) || teacherName : teacherName;
+  const displayTitle =
+    lang === 'AR' ? translateTitleToAr(session.title) || session.title : session.title;
 
   const expectedPin = session.teacher_pin?.trim() || '1234';
   const storageKey = `fka_teacher_pin_${session.id}`;
@@ -75,11 +117,11 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
         recordTeacherJoin();
       }
     } catch {
-      // localStorage mungkin dinonaktifkan di private mode
+      // Ignore
     }
   }, [storageKey, expectedPin, recordTeacherJoin]);
 
-  // Countdown & Auto-launch Zoom jika sudah terverifikasi
+  // Auto-launch Zoom jika sudah terverifikasi
   useEffect(() => {
     if (!isVerified) return;
 
@@ -109,12 +151,12 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
       try {
         localStorage.setItem(storageKey, cleanPin);
       } catch {
-        // Abaikan jika private browsing
+        // Ignore
       }
       setIsVerified(true);
       await recordTeacherJoin();
     } else {
-      setErrorMessage('PIN Pengajar Salah. Anda bukan pengampu terdaftar.');
+      setErrorMessage(t.errorWrongPin);
       setIsRedirectingToSantri(true);
 
       // Melempar santri yang salah memasukkan PIN ke formulir presensi santri
@@ -125,11 +167,43 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
     setIsSubmitting(false);
   };
 
+  // Language Switcher Component
+  const LanguageSwitcher = (
+    <div className="flex items-center justify-center gap-1 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-2xl border border-slate-200/90 shadow-xs text-xs font-semibold mb-5">
+      <IoGlobeOutline className="h-4 w-4 text-violet-600 mx-1 shrink-0" />
+      {[
+        { code: 'AR', label: 'العربية' },
+        { code: 'ID', label: 'Indonesia' },
+        { code: 'EN', label: 'English' },
+      ].map(({ code, label }) => (
+        <button
+          key={code}
+          type="button"
+          onClick={() => handleLanguageChange(code as TeacherGateLang)}
+          className={`px-3 py-1 rounded-xl transition-all ${
+            lang === code
+              ? 'bg-violet-600 text-white font-bold shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+
   // ── KASUS 1: Pengajar Sudah Terverifikasi (Auto-Launch Zoom) ───────────────
   if (isVerified) {
     return (
-      <div dir="ltr" className="min-h-screen bg-[#F6F8FC] py-8 px-4 flex flex-col items-center justify-center text-left">
-        <div className="w-full max-w-lg mx-auto rounded-3xl bg-white p-6 sm:p-8 shadow-xl border border-violet-100 text-left">
+      <div
+        dir={isRtl ? 'rtl' : 'ltr'}
+        className={`min-h-screen bg-[#F6F8FC] py-8 px-4 flex flex-col items-center justify-center ${
+          isRtl ? 'font-arabic text-right' : 'text-left'
+        }`}
+      >
+        {LanguageSwitcher}
+
+        <div className="w-full max-w-lg mx-auto rounded-3xl bg-white p-6 sm:p-8 shadow-xl border border-violet-100">
           <div className="flex flex-col items-center text-center mb-6">
             <div className="h-16 w-16 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 mb-4 animate-bounce shrink-0 shadow-inner">
               <IoSchool className="h-9 w-9 text-violet-700" />
@@ -137,37 +211,32 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
 
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-violet-50 text-violet-700 border border-violet-200 mb-2">
               <IoCheckmarkCircle className="h-3.5 w-3.5 text-violet-600" />
-              <span>Akses Khusus Pengampu / Syaikh Terverifikasi</span>
+              <span>{t.verifiedBadge}</span>
             </div>
 
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-1">
-              Ahlan wa Sahlan, {teacherName}
+              {t.greetingPrefix} {displayTeacherName}
             </h2>
-            <p className="text-sm font-semibold text-violet-800 font-arabic mb-3" dir="rtl">
-              أهلاً وسهلاً بفضيلة الشيخ، حياكم الله
-            </p>
 
-            <p className="text-xs sm:text-sm text-slate-600">
-              {countdown > 0
-                ? `Mengarahkan langsung ke aplikasi Zoom (${countdown}s)...`
-                : 'Aplikasi Zoom sedang dibuka...'}
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+              {countdown > 0 ? t.redirectingZoom(countdown) : t.openingZoom}
             </p>
           </div>
 
           <div className="bg-slate-50 border border-slate-200/70 rounded-2xl p-4 mb-5">
             <div className="flex items-center justify-between text-xs mb-2">
-              <span className="text-slate-500 font-medium">Halaqah:</span>
-              <span className="font-bold text-slate-800">{session.title}</span>
+              <span className="text-slate-500 font-medium">{t.halaqahLabel}</span>
+              <span className="font-bold text-slate-800">{displayTitle}</span>
             </div>
             <div className="flex items-center justify-between text-xs mb-2">
-              <span className="text-slate-500 font-medium">Nama di Zoom:</span>
+              <span className="text-slate-500 font-medium">{t.zoomNameLabel}</span>
               <span className="font-bold text-violet-700 flex items-center gap-1">
                 <IoPersonOutline className="h-3.5 w-3.5" />
-                {teacherName}
+                {displayTeacherName}
               </span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-500 font-medium">Meeting ID:</span>
+              <span className="text-slate-500 font-medium">{t.meetingIdLabel}</span>
               <span className="font-mono font-bold text-slate-700">{session.zoom_meeting_id}</span>
             </div>
           </div>
@@ -178,8 +247,8 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
               className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold text-sm bg-violet-600 hover:bg-violet-700 active:scale-[0.98] text-white shadow-lg shadow-violet-500/25 transition-all"
             >
               <IoVideocam className="h-4 w-4" />
-              Buka Aplikasi Zoom Sekarang
-              <IoArrowForward className="h-4 w-4" />
+              <span>{t.openZoomAppBtn}</span>
+              <IoArrowForward className={`h-4 w-4 ${isRtl ? 'rotate-180' : ''}`} />
             </a>
 
             <a
@@ -188,7 +257,7 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
               rel="noopener noreferrer"
               className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs text-slate-600 hover:bg-slate-100 transition-all"
             >
-              Gunakan Zoom Web Browser
+              {t.openZoomWebBtn}
             </a>
           </div>
         </div>
@@ -198,8 +267,15 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
 
   // ── KASUS 2: Belum Terverifikasi / Input PIN Pengajar ──────────────────────
   return (
-    <div dir="ltr" className="min-h-screen bg-[#F6F8FC] py-8 px-4 flex flex-col items-center justify-center text-left">
-      <div className="w-full max-w-md mx-auto rounded-3xl bg-white p-6 sm:p-8 shadow-xl border border-slate-200/80 text-left">
+    <div
+      dir={isRtl ? 'rtl' : 'ltr'}
+      className={`min-h-screen bg-[#F6F8FC] py-8 px-4 flex flex-col items-center justify-center ${
+        isRtl ? 'font-arabic text-right' : 'text-left'
+      }`}
+    >
+      {LanguageSwitcher}
+
+      <div className="w-full max-w-md mx-auto rounded-3xl bg-white p-6 sm:p-8 shadow-xl border border-slate-200/80">
         <div className="flex flex-col items-center text-center mb-6">
           <div className="h-16 w-16 rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 mb-4 shadow-inner">
             <IoKey className="h-8 w-8 text-violet-600" />
@@ -207,19 +283,19 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
 
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-violet-50 text-violet-700 border border-violet-200 mb-2">
             <IoSchool className="h-3.5 w-3.5" />
-            <span>Gerbang Masuk Pengampu / Syaikh</span>
+            <span>{t.badge}</span>
           </span>
 
           <h2 className="text-xl font-bold text-slate-900 mb-1">
-            Verifikasi PIN Pengajar
+            {t.title}
           </h2>
           <p className="text-xs text-slate-500 leading-relaxed">
-            Halaqah: <span className="font-semibold text-slate-700">{session.title}</span>
+            {t.halaqahLabel} <span className="font-semibold text-slate-700">{displayTitle}</span>
             <br />
-            Pengampu: <span className="font-semibold text-violet-700">{teacherName}</span>
+            {t.teacherLabel} <span className="font-semibold text-violet-700">{displayTeacherName}</span>
           </p>
           <p className="text-[11px] text-slate-400 mt-1">
-            (PIN hanya perlu dimasukkan satu kali pada perangkat HP / Laptop ini)
+            {t.deviceNote}
           </p>
         </div>
 
@@ -230,7 +306,7 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
               <p className="font-bold">{errorMessage}</p>
               {isRedirectingToSantri && (
                 <p className="text-[11px] text-rose-600 mt-1">
-                  Mengalihkan Anda ke formulir presensi santri dalam 2 detik...
+                  {t.errorRedirectNotice}
                 </p>
               )}
             </div>
@@ -240,7 +316,7 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
         <form onSubmit={handleVerifyPin} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              Masukkan PIN Pengajar (4-6 Digit):
+              {t.pinLabel}
             </label>
             <input
               type="password"
@@ -249,7 +325,7 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
               maxLength={6}
               value={pinInput}
               onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
-              placeholder="••••"
+              placeholder={t.pinPlaceholder}
               disabled={isSubmitting || isRedirectingToSantri}
               autoFocus
               className="w-full px-4 py-3 text-center text-2xl tracking-[0.4em] font-mono rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all disabled:bg-slate-100"
@@ -264,12 +340,12 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
             {isSubmitting ? (
               <>
                 <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                <span>Memverifikasi...</span>
+                <span>{t.verifyingBtn}</span>
               </>
             ) : (
               <>
-                <span>Verifikasi & Masuk Zoom</span>
-                <IoArrowForward className="h-4 w-4" />
+                <span>{t.verifyBtn}</span>
+                <IoArrowForward className={`h-4 w-4 ${isRtl ? 'rotate-180' : ''}`} />
               </>
             )}
           </button>
@@ -280,7 +356,8 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
             href={`/${session.slug}`}
             className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
           >
-            Bukan Pengajar? <span className="text-indigo-600 underline">Buka Presensi Santri</span>
+            {t.notTeacherPrompt}{' '}
+            <span className="text-indigo-600 underline">{t.notTeacherLink}</span>
           </a>
         </div>
       </div>

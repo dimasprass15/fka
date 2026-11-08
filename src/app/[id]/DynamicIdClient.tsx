@@ -52,15 +52,16 @@ export default function DynamicIdClient({
   const isNumericPoster = /^[1-8]$/.test(rawId);
 
   useEffect(() => {
-    // Rute presensi halaqah WAJIB ber-layout Indonesia (ID) & LTR secara default
-    if (!isNumericPoster) {
+    // Rute presensi santri ber-layout Indonesia (ID) & LTR secara default.
+    // Jika rute pengajar (effectiveIsTeacher), biarkan TeacherGateView mengutamakan Bahasa Arab (AR) & RTL.
+    if (!isNumericPoster && !effectiveIsTeacher) {
       if (language === "AR") {
         setLanguage("ID");
       }
       document.documentElement.setAttribute("dir", "ltr");
       document.documentElement.setAttribute("lang", language === "EN" ? "en" : "id");
     }
-  }, [isNumericPoster, language, setLanguage]);
+  }, [isNumericPoster, language, setLanguage, effectiveIsTeacher]);
 
   const [session, setSession] = useState<AttendanceSession | null>(
     initialSession !== undefined ? initialSession : null
