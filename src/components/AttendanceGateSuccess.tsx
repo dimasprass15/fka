@@ -22,12 +22,14 @@ interface AttendanceGateSuccessProps {
   session: AttendanceSession;
   student: Student;
   lang?: SupportedGateLang;
+  onReset?: () => void;
 }
 
 export default function AttendanceGateSuccess({
   session,
   student,
   lang = "ID",
+  onReset,
 }: AttendanceGateSuccessProps) {
   const activeLang: SupportedGateLang = lang === "EN" ? "EN" : "ID";
   const [copied, setCopied] = useState(false);
@@ -125,6 +127,18 @@ export default function AttendanceGateSuccess({
             <span className="font-arabic text-indigo-600 font-semibold">
               {teacherLabel.ar} {translateTeacherNameToAr(session.halaqahs.teacher_name)}
             </span>
+          </div>
+        )}
+
+        {onReset && (
+          <div className="pt-0.5">
+            <button
+              type="button"
+              onClick={onReset}
+              className="text-xs text-indigo-600 hover:text-indigo-800 font-medium hover:underline inline-flex items-center gap-1 cursor-pointer"
+            >
+              <span>{activeLang === "EN" ? "← Not you? Switch number" : "← Bukan Anda? Ganti nomor HP"}</span>
+            </button>
           </div>
         )}
 

@@ -31,7 +31,7 @@ import AttendanceFormHeader from './AttendanceFormHeader';
 import DynamicFormQuestions from './DynamicFormQuestions';
 import { AttendanceGateHeader } from './AttendanceGateHeader';
 import { AttendanceRecognizedStudent } from './AttendanceRecognizedStudent';
-import { AttendanceScheduleNotice } from './AttendanceScheduleNotice';
+import AttendanceGateClosedView from './AttendanceGateClosedView';
 
 interface AttendanceGateViewProps {
   session: AttendanceSession;
@@ -90,6 +90,7 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
   const [todayRecord, setTodayRecord] = useState<AttendanceRecord | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAutoChecking, setIsAutoChecking] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSuccessView, setIsSuccessView] = useState(false);
   const [showExcuseModal, setShowExcuseModal] = useState(false);
@@ -97,22 +98,58 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
   const formTitle = cfg?.form_title || session.title;
   const formDesc = cfg?.form_description || cfg?.announcement;
 
-  const checkTodayAttendance = useCallback(async (studentId: string) => {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const { data } = await supabase
-        .from('attendance_records')
-        .select('*')
-        .eq('session_id', session.id)
-        .eq('student_id', studentId)
-        .eq('session_date', today)
-        .maybeSingle();
+  const checkTodayAttendance = useCallback(
+    async (studentId: string): Promise<boolean> => {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const { data, error } = await supabase
+          .from('attendance_records')
+          .select('*')
+          .eq('session_id', session.id)
+          .eq('student_id', studentId)
+          .eq('session_date', today)
+          .maybeSingle();
 
-      setTodayRecord((data as AttendanceRecord) || null);
-    } catch {
-      // Non-critical check failure
-    }
-  }, [session.id]);
+        if (error) throw error;
+
+        if (data) {
+          const record = data as AttendanceRecord;
+          // Jika sudah hadir/terlambat hari ini ➡️ langsung reconnect tanpa isi form lagi!
+          if (record.status === 'hadir' || record.status === 'terlambat') {
+            const nowIso = new Date().toISOString();
+            const nextReconnect = (record.reconnect_count || 0) + 1;
+
+            await supabase
+              .from('attendance_records')
+              .update({
+                reconnect_count: nextReconnect,
+                zoom_join_time: nowIso,
+                zoom_leave_time: null,
+              })
+              .eq('id', record.id);
+
+            setTodayRecord({
+              ...record,
+              reconnect_count: nextReconnect,
+              zoom_join_time: nowIso,
+              zoom_leave_time: null,
+            });
+            setIsSuccessView(true);
+            return true;
+          }
+
+          setTodayRecord(record);
+          return false;
+        }
+
+        setTodayRecord(null);
+        return false;
+      } catch {
+        return false;
+      }
+    },
+    [session.id]
+  );
 
   const lookupPhone = useCallback(
     async (rawPhone: string) => {
@@ -155,16 +192,18 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
   );
 
   useEffect(() => {
-    const saved = localStorage.getItem('fka_student_phone');
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('fka_student_phone') : null;
     if (saved) {
       const sanitized = sanitizePhoneNumber(saved);
       setAnswers((prev) => ({ ...prev, [phoneField.id]: sanitized }));
-      lookupPhone(sanitized);
+      setIsAutoChecking(true);
+      lookupPhone(sanitized).finally(() => {
+        setIsAutoChecking(false);
+      });
     }
   }, [lookupPhone, phoneField.id]);
 
   const handleAnswerChange = (fieldId: string, value: string) => {
-    // Preserve spaces while typing so student can type multiple words in their name
     const sanitizedVal = sanitizeInputText(value, 200, false);
     setAnswers((prev) => ({ ...prev, [fieldId]: sanitizedVal }));
 
@@ -183,7 +222,6 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
     setErrorMessage('');
 
     try {
-      // Re-evaluate schedule gate right before submission
       const currentSchedule = computeSchedule();
       if (currentSchedule && !currentSchedule.isOpen) {
         setSchedule(currentSchedule);
@@ -298,13 +336,39 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
     setStudent(null);
     setTodayRecord(null);
     setAnswers({});
+    setIsSuccessView(false);
   };
 
-  // ── Render Case 1: Attendance Success View ──────────────────────────────────
+  // ── Render Case 0: Auto-Checking Attendance Spinner ─────────────────────────
+  if (isAutoChecking && !isSuccessView) {
+    return (
+      <div className="min-h-screen bg-[#F6F8FC] py-8 px-4 flex flex-col items-center justify-center text-center">
+        <div className="w-12 h-12 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin mb-4" />
+        <h3 className="text-base font-bold text-slate-800">
+          {activeLang === 'EN' ? 'Connecting to Halaqah...' : 'Menghubungkan ke Halaqah...'}
+        </h3>
+        <p className="text-xs text-slate-500 mt-1">
+          {activeLang === 'EN'
+            ? 'Checking attendance and reconnecting to Zoom...'
+            : 'Mengecek kehadiran & langsung masuk ke Zoom...'}
+        </p>
+        <span className="text-xs text-indigo-600 font-arabic mt-1.5">
+          جارٍ التحقق من الحضور وإعادة التوجيه إلى زووم...
+        </span>
+      </div>
+    );
+  }
+
+  // ── Render Case 1: Attendance Success / Reconnect Direct View ───────────────
   if (isSuccessView && student) {
     return (
       <div className="min-h-screen bg-[#F6F8FC] py-8 sm:py-12 px-3 sm:px-4 flex items-center justify-center">
-        <AttendanceGateSuccess session={session} student={student} lang={activeLang} />
+        <AttendanceGateSuccess
+          session={session}
+          student={student}
+          lang={activeLang}
+          onReset={resetAccount}
+        />
       </div>
     );
   }
@@ -322,27 +386,15 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
       });
 
     return (
-      <div className="min-h-screen bg-[#F6F8FC] text-slate-900 py-4 sm:py-8 px-3.5 sm:px-6 flex flex-col justify-between">
-        <AttendanceGateHeader
-          slug={session.slug}
-          titlePrimary={titleSuffix.primary}
-          titleAr={titleSuffix.ar}
-          activeLang={activeLang}
-          onSelectLang={setLanguage}
-        />
-        <main className="max-w-xl mx-auto w-full my-auto">
-          <AttendanceScheduleNotice
-            schedule={fallbackSchedule}
-            sessionTitle={session.title}
-            isManuallyDisabled={isManuallyClosed}
-            lang={activeLang}
-            onAutoUnlock={() => setSchedule(computeSchedule())}
-          />
-        </main>
-        <footer className="text-center text-xs text-slate-400 py-4 sm:py-6">
-          © {new Date().getFullYear()} Fastabiqul Khairat Academy. All rights reserved.
-        </footer>
-      </div>
+      <AttendanceGateClosedView
+        session={session}
+        schedule={fallbackSchedule}
+        isManuallyClosed={isManuallyClosed}
+        activeLang={activeLang}
+        titleSuffix={titleSuffix}
+        onSelectLang={setLanguage}
+        onAutoUnlock={() => setSchedule(computeSchedule())}
+      />
     );
   }
 

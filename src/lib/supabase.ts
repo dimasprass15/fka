@@ -76,7 +76,10 @@ export interface AttendanceRecord {
   session_date: string;
   status: 'hadir' | 'terlambat' | 'izin' | 'sakit' | 'alpa';
   web_submitted_at: string;
+  zoom_join_time?: string | null;
+  zoom_leave_time?: string | null;
   zoom_duration_minutes: number;
   reconnect_count: number;
+  notes?: string | null;
 }
 
