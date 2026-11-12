@@ -79,7 +79,7 @@ export default function DynamicIdClient({
         const { data, error } = await supabase
           .from("attendance_sessions")
           .select(
-            "*, halaqahs(id, name, teacher_name, category, days_label, utc_hour, utc_minute)"
+            "*, halaqahs(id, name, teacher_name, teacher_phones, category, days_label, utc_hour, utc_minute)"
           )
           .eq("slug", rawId.toLowerCase())
           .maybeSingle();

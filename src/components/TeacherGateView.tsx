@@ -139,14 +139,15 @@ export default function TeacherGateView({ session }: TeacherGateViewProps) {
   useEffect(() => {
     try {
       const savedPin = localStorage.getItem(storageKey);
-      if (savedPin === expectedPin) {
+      const isPhoneVerified = localStorage.getItem(`fka_teacher_verified_${session.id}`) === 'true';
+      if (savedPin === expectedPin || isPhoneVerified) {
         setIsVerified(true);
         recordTeacherJoin();
       }
     } catch {
       // Ignore
     }
-  }, [storageKey, expectedPin, recordTeacherJoin]);
+  }, [storageKey, expectedPin, recordTeacherJoin, session.id]);
 
   // Auto-launch Zoom jika sudah terverifikasi
   useEffect(() => {

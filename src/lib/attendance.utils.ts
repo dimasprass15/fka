@@ -55,6 +55,34 @@ export function buildZoomAppUrl(meetingId: string, passcode: string, uname: stri
   return `zoomus://zoom.us/join?confno=${cleanId}&pwd=${encodedPwd}&uname=${encodedName}`;
 }
 
+/**
+ * Checks whether an input phone number belongs to the registered instructor/teacher.
+ * Matches against teacher_phones from session or halaqah.
+ */
+export function isTeacherPhoneNumber(
+  inputPhone: string,
+  sessionTeacherPhones?: string[] | null,
+  halaqahTeacherPhones?: string[] | null
+): boolean {
+  if (!inputPhone) return false;
+  const digits = inputPhone.replace(/\D/g, '');
+  if (digits.length < 8) return false;
+
+  const phoneList: string[] = [
+    ...(sessionTeacherPhones || []),
+    ...(halaqahTeacherPhones || []),
+  ];
+
+  if (phoneList.length === 0) return false;
+
+  return phoneList.some((tp) => {
+    if (!tp) return false;
+    const cleanTp = tp.replace(/\D/g, '');
+    if (cleanTp.length < 8) return false;
+    return digits === cleanTp || digits.endsWith(cleanTp) || cleanTp.endsWith(digits);
+  });
+}
+
 // Re-export strings, bilingual dictionaries, and Arabic translation helpers
 export * from './attendance.strings';
 export * from './attendance.arabic';

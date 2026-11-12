@@ -1,71 +1,57 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import {
-  IoVideocam,
-  IoArrowForward,
-  IoDocumentText,
-  IoAlertCircle,
-} from 'react-icons/io5';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   getDualText,
   sanitizePhoneNumber,
   sanitizeInputText,
+  isTeacherPhoneNumber,
   type SupportedGateLang,
 } from '@/lib/attendance.utils';
 import {
-  supabase,
   type AttendanceSession,
   type Student,
   type AttendanceRecord,
   type DynamicFormField,
 } from '@/lib/supabase';
 import {
+  recordTeacherAttendance,
+  lookupStudentByPhone,
+  checkStudentTodayAttendance,
+  reconnectStudentAttendance,
+  upsertStudentAndRecord,
+} from '@/lib/attendance.service';
+import {
   evaluateScheduleWindow,
   type ScheduleWindowResult,
 } from '@/lib/schedule.utils';
 import AttendanceGateSuccess from './AttendanceGateSuccess';
 import AttendanceExcuseModal from './AttendanceExcuseModal';
-import AttendanceFormHeader from './AttendanceFormHeader';
-import DynamicFormQuestions from './DynamicFormQuestions';
+import AttendanceGateActiveForm from './AttendanceGateActiveForm';
 import { AttendanceGateHeader } from './AttendanceGateHeader';
-import { AttendanceRecognizedStudent } from './AttendanceRecognizedStudent';
 import AttendanceGateClosedView from './AttendanceGateClosedView';
+import TeacherGateView from './TeacherGateView';
 
 interface AttendanceGateViewProps {
   session: AttendanceSession;
 }
 
+const DEFAULT_FIELDS: DynamicFormField[] = [
+  { id: 'phone', label: 'Nomor WhatsApp Santri', type: 'phone', required: true, is_student_phone: true },
+  { id: 'name', label: 'Nama Lengkap Santri', type: 'text', required: true, is_student_name: true },
+  { id: 'gender', label: 'Kategori Santri', type: 'radio', options: ['Ikhwan (Laki-laki)', 'Akhwat (Perempuan)'], required: true },
+];
+
 export default function AttendanceGateView({ session }: AttendanceGateViewProps) {
   const { language, setLanguage } = useLanguage();
   const activeLang: SupportedGateLang = language === 'EN' ? 'EN' : 'ID';
-
-  const badgeText = getDualText('badge', activeLang);
   const titleSuffix = getDualText('titleSuffix', activeLang);
-  const teacherText = getDualText('teacherLabel', activeLang);
-  const welcomeBack = getDualText('welcomeBack', activeLang);
-  const changeNumber = getDualText('changeNumber', activeLang);
-  const alreadyAttended = getDualText('alreadyAttendedNote', activeLang);
-  const joinBtnText = getDualText('joinZoomBtn', activeLang);
-  const rejoinBtnText = getDualText('rejoinZoomBtn', activeLang);
-  const submittingText = getDualText('submitting', activeLang);
-  const excuseBtnText = getDualText('excuseBtn', activeLang);
-
-  const defaultFields: DynamicFormField[] = [
-    { id: 'phone', label: 'Nomor WhatsApp Santri', type: 'phone', required: true, is_student_phone: true },
-    { id: 'name', label: 'Nama Lengkap Santri', type: 'text', required: true, is_student_name: true },
-    { id: 'gender', label: 'Kategori Santri', type: 'radio', options: ['Ikhwan (Laki-laki)', 'Akhwat (Perempuan)'], required: true },
-  ];
 
   const cfg = session.form_config;
-  const fields: DynamicFormField[] =
-    cfg?.fields && cfg.fields.length > 0 ? cfg.fields : defaultFields;
-
-  const phoneField =
-    fields.find((f) => f.is_student_phone || f.type === 'phone' || f.id === 'phone') || fields[0];
-  const nameField =
-    fields.find((f) => f.is_student_name || f.id === 'name') || fields[1];
+  const fields: DynamicFormField[] = cfg?.fields && cfg.fields.length > 0 ? cfg.fields : DEFAULT_FIELDS;
+  const phoneField = fields.find((f) => f.is_student_phone || f.type === 'phone' || f.id === 'phone') || fields[0];
+  const nameField = fields.find((f) => f.is_student_name || f.id === 'name') || fields[1];
 
   const computeSchedule = useCallback((): ScheduleWindowResult | null => {
     if (
@@ -90,58 +76,48 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
   const [todayRecord, setTodayRecord] = useState<AttendanceRecord | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAutoChecking, setIsAutoChecking] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSuccessView, setIsSuccessView] = useState(false);
   const [showExcuseModal, setShowExcuseModal] = useState(false);
+  const [isTeacherDetected, setIsTeacherDetected] = useState(false);
 
   const formTitle = cfg?.form_title || session.title;
   const formDesc = cfg?.form_description || cfg?.announcement;
 
+  const handleTeacherLogin = useCallback(
+    async (phone: string) => {
+      try {
+        localStorage.setItem(`fka_teacher_verified_${session.id}`, 'true');
+        localStorage.setItem(`fka_teacher_phone_${session.id}`, phone);
+      } catch {}
+      await recordTeacherAttendance(session.id);
+      setIsTeacherDetected(true);
+    },
+    [session.id]
+  );
+
   const checkTodayAttendance = useCallback(
     async (studentId: string): Promise<boolean> => {
       try {
-        const today = new Date().toISOString().split('T')[0];
-        const { data, error } = await supabase
-          .from('attendance_records')
-          .select('*')
-          .eq('session_id', session.id)
-          .eq('student_id', studentId)
-          .eq('session_date', today)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        if (data) {
-          const record = data as AttendanceRecord;
-          // Jika sudah hadir/terlambat hari ini ➡️ langsung reconnect tanpa isi form lagi!
+        const record = await checkStudentTodayAttendance(session.id, studentId);
+        if (record) {
           if (record.status === 'hadir' || record.status === 'terlambat') {
-            const nowIso = new Date().toISOString();
-            const nextReconnect = (record.reconnect_count || 0) + 1;
-
-            await supabase
-              .from('attendance_records')
-              .update({
-                reconnect_count: nextReconnect,
-                zoom_join_time: nowIso,
-                zoom_leave_time: null,
-              })
-              .eq('id', record.id);
-
+            const { nextReconnect, joinTime } = await reconnectStudentAttendance(
+              record.id,
+              record.reconnect_count
+            );
             setTodayRecord({
               ...record,
               reconnect_count: nextReconnect,
-              zoom_join_time: nowIso,
+              zoom_join_time: joinTime,
               zoom_leave_time: null,
             });
             setIsSuccessView(true);
             return true;
           }
-
           setTodayRecord(record);
           return false;
         }
-
         setTodayRecord(null);
         return false;
       } catch {
@@ -156,20 +132,18 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
       const formatted = sanitizePhoneNumber(rawPhone);
       if (formatted.length < 9) return;
 
+      // Cek apakah nomor WA ini terdaftar sebagai nomor Pengampu / Syaikh
+      if (isTeacherPhoneNumber(rawPhone, session.teacher_phones, session.halaqahs?.teacher_phones)) {
+        await handleTeacherLogin(formatted);
+        return;
+      }
+
       setIsSearching(true);
       setErrorMessage('');
 
       try {
-        const { data, error } = await supabase
-          .from('students')
-          .select('*')
-          .eq('phone_number', formatted)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        if (data) {
-          const found = data as Student;
+        const found = await lookupStudentByPhone(formatted);
+        if (found) {
           setStudent(found);
           localStorage.setItem('fka_student_phone', formatted);
           setAnswers((prev) => ({
@@ -188,11 +162,10 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
         setIsSearching(false);
       }
     },
-    [checkTodayAttendance, phoneField.id, nameField]
+    [checkTodayAttendance, phoneField.id, nameField, session, handleTeacherLogin]
   );
 
   useEffect(() => {
-    // Laman presensi WAJIB ber-layout Bahasa Indonesia (ID) & LTR secara default
     const savedGate = typeof window !== 'undefined' ? localStorage.getItem('fka_gate_lang') : null;
     const targetLang = savedGate === 'EN' ? 'EN' : 'ID';
     if (language !== targetLang) {
@@ -207,33 +180,24 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
     if (saved) {
       const sanitized = sanitizePhoneNumber(saved);
       setAnswers((prev) => ({ ...prev, [phoneField.id]: sanitized }));
-      setIsAutoChecking(true);
-      lookupPhone(sanitized).finally(() => {
-        setIsAutoChecking(false);
-      });
+      lookupPhone(sanitized);
     }
   }, [lookupPhone, phoneField.id]);
 
   const handleSelectGateLang = (newLang: 'AR' | 'ID' | 'EN') => {
-    const validGateLang = newLang === 'EN' ? 'EN' : 'ID';
-    setLanguage(validGateLang);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('fka_gate_lang', validGateLang);
-    }
+    const valid = newLang === 'EN' ? 'EN' : 'ID';
+    setLanguage(valid);
+    if (typeof window !== 'undefined') localStorage.setItem('fka_gate_lang', valid);
     document.documentElement.setAttribute('dir', 'ltr');
-    document.documentElement.setAttribute('lang', validGateLang.toLowerCase());
+    document.documentElement.setAttribute('lang', valid.toLowerCase());
   };
 
   const handleAnswerChange = (fieldId: string, value: string) => {
-    const sanitizedVal = sanitizeInputText(value, 200, false);
-    setAnswers((prev) => ({ ...prev, [fieldId]: sanitizedVal }));
-
+    const clean = sanitizeInputText(value, 200, false);
+    setAnswers((prev) => ({ ...prev, [fieldId]: clean }));
     if (fieldId === phoneField.id) {
-      if (sanitizedVal.replace(/\D/g, '').length >= 9) {
-        lookupPhone(sanitizedVal);
-      } else {
-        setStudent(null);
-      }
+      if (clean.replace(/\D/g, '').length >= 9) lookupPhone(clean);
+      else setStudent(null);
     }
   };
 
@@ -243,6 +207,16 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
     setErrorMessage('');
 
     try {
+      const rawPhone = answers[phoneField.id] || '';
+      const formattedPhone = sanitizePhoneNumber(rawPhone);
+
+      // Cek apakah nomor pengampu sebelum validasi santri
+      if (isTeacherPhoneNumber(formattedPhone, session.teacher_phones, session.halaqahs?.teacher_phones)) {
+        await handleTeacherLogin(formattedPhone);
+        setIsSubmitting(false);
+        return;
+      }
+
       const currentSchedule = computeSchedule();
       if (currentSchedule && !currentSchedule.isOpen) {
         setSchedule(currentSchedule);
@@ -253,10 +227,6 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
         );
       }
 
-      let currentStudent = student;
-      const rawPhone = answers[phoneField.id] || '';
-      const formattedPhone = sanitizePhoneNumber(rawPhone);
-
       if (formattedPhone.length < 9 || formattedPhone.length > 20) {
         throw new Error(
           activeLang === 'EN'
@@ -265,8 +235,8 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
         );
       }
 
-      const rawFullName = currentStudent
-        ? currentStudent.full_name
+      const rawFullName = student
+        ? student.full_name
         : (nameField ? answers[nameField.id] : '') || 'Santri';
       const studentFullName = sanitizeInputText(rawFullName, 80, true);
 
@@ -278,74 +248,25 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
         );
       }
 
-      if (!currentStudent) {
-        const studentGender = (answers['gender'] || '').toLowerCase().includes('akhwat')
-          ? 'akhwat'
-          : 'ikhwan';
-
-        const { data: newStudent, error: studentErr } = await supabase
-          .from('students')
-          .upsert(
-            {
-              phone_number: formattedPhone,
-              full_name: studentFullName.trim(),
-              gender: studentGender,
-            },
-            { onConflict: 'phone_number' }
-          )
-          .select()
-          .single();
-
-        if (studentErr) throw studentErr;
-        currentStudent = newStudent as Student;
-        setStudent(currentStudent);
-        localStorage.setItem('fka_student_phone', formattedPhone);
-
-        if (session.halaqah_id) {
-          await supabase.from('halaqah_members').upsert(
-            {
-              halaqah_id: session.halaqah_id,
-              student_id: currentStudent.id,
-              status: 'active',
-            },
-            { onConflict: 'halaqah_id,student_id' }
-          );
-        }
-      }
-
-      const otherAnswers = fields
-        .filter((f) => f.id !== phoneField.id && f.id !== nameField?.id)
-        .map((f) => `${sanitizeInputText(f.label, 40, true)}: ${sanitizeInputText(answers[f.id] || '-', 100, true)}`)
-        .join(' | ');
-
-      const calculatedStatus: 'hadir' | 'terlambat' =
+      const initialStatus =
         currentSchedule && currentSchedule.isLate ? 'terlambat' : 'hadir';
 
-      const today = new Date().toISOString().split('T')[0];
-      const nowIso = new Date().toISOString();
-      const reconnectCount = (todayRecord?.reconnect_count || 0) + (todayRecord ? 1 : 0);
+      const { student: updatedStudent, record } = await upsertStudentAndRecord({
+        session,
+        formattedPhone,
+        fullName: studentFullName,
+        gender: answers['gender'] || 'ikhwan',
+        existingStudent: student,
+        status: initialStatus,
+        answers,
+      });
 
-      const { error: attErr } = await supabase.from('attendance_records').upsert(
-        {
-          session_id: session.id,
-          student_id: currentStudent.id,
-          session_date: today,
-          status: todayRecord?.status === 'terlambat' ? 'terlambat' : calculatedStatus,
-          notes: otherAnswers,
-          web_submitted_at: todayRecord?.web_submitted_at || nowIso,
-          zoom_join_time: nowIso,
-          zoom_leave_time: null,
-          zoom_duration_minutes: todayRecord?.zoom_duration_minutes || 0,
-          reconnect_count: reconnectCount,
-        },
-        { onConflict: 'session_id,student_id,session_date' }
-      );
-
-      if (attErr) throw attErr;
-
+      setStudent(updatedStudent);
+      setTodayRecord(record);
+      localStorage.setItem('fka_student_phone', formattedPhone);
       setIsSuccessView(true);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Terjadi kesalahan saat presensi.';
+      const msg = err instanceof Error ? err.message : 'Terjadi kesalahan sistem';
       setErrorMessage(msg);
     } finally {
       setIsSubmitting(false);
@@ -356,28 +277,13 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
     localStorage.removeItem('fka_student_phone');
     setStudent(null);
     setTodayRecord(null);
-    setAnswers({});
     setIsSuccessView(false);
+    setAnswers({});
   };
 
-  // ── Render Case 0: Auto-Checking Attendance Spinner ─────────────────────────
-  if (isAutoChecking && !isSuccessView) {
-    return (
-      <div dir="ltr" className="min-h-screen bg-[#F6F8FC] py-8 px-4 flex flex-col items-center justify-center text-center text-left">
-        <div className="w-12 h-12 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin mb-4" />
-        <h3 className="text-base font-bold text-slate-800">
-          {activeLang === 'EN' ? 'Connecting to Halaqah...' : 'Menghubungkan ke Halaqah...'}
-        </h3>
-        <p className="text-xs text-slate-500 mt-1">
-          {activeLang === 'EN'
-            ? 'Checking attendance and reconnecting to Zoom...'
-            : 'Mengecek kehadiran & langsung masuk ke Zoom...'}
-        </p>
-        <span className="text-xs text-indigo-600 font-arabic mt-1.5">
-          جارٍ التحقق من الحضور وإعادة التوجيه إلى زووم...
-        </span>
-      </div>
-    );
+  // ── Render Case 0: Deteksi Nomor Pengampu -> Langsung Masuk Gerbang Pengajar ──
+  if (isTeacherDetected) {
+    return <TeacherGateView session={session} />;
   }
 
   // ── Render Case 1: Attendance Success / Reconnect Direct View ───────────────
@@ -420,7 +326,6 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
   }
 
   // ── Render Case 3: Attendance Gate Open & Active ────────────────────────────
-  const currentSubmitBtn = todayRecord ? rejoinBtnText : joinBtnText;
   const remainingFields = student
     ? fields.filter((f) => f.id !== phoneField.id && f.id !== nameField?.id)
     : fields;
@@ -436,76 +341,24 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
       />
 
       <main className="max-w-xl mx-auto w-full my-auto">
-        <div className="bg-white rounded-3xl p-5 sm:p-8 shadow-xl shadow-slate-200/50 border border-slate-100">
-          <AttendanceFormHeader
-            session={session}
-            formTitle={formTitle}
-            formDesc={formDesc}
-            badgeText={badgeText}
-            teacherText={teacherText}
-            lang={activeLang}
-          />
-
-          {errorMessage && (
-            <div className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
-              <IoAlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
-              <span>{errorMessage}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleJoinZoom} className="space-y-4 sm:space-y-5">
-            {student && (
-              <AttendanceRecognizedStudent
-                student={student}
-                todayRecord={todayRecord}
-                welcomeBack={welcomeBack}
-                changeNumber={changeNumber}
-                alreadyAttended={alreadyAttended}
-                onReset={resetAccount}
-              />
-            )}
-
-            <DynamicFormQuestions
-              fields={remainingFields}
-              answers={answers}
-              onAnswerChange={handleAnswerChange}
-              phoneFieldId={phoneField.id}
-              isSearchingPhone={isSearching}
-              lang={activeLang}
-            />
-
-            <button
-              type="submit"
-              disabled={isSubmitting || isSearching}
-              className="w-full flex flex-col items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3.5 sm:py-4 px-6 shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed group cursor-pointer"
-            >
-              <div className="flex items-center gap-2 text-sm sm:text-base font-bold">
-                <IoVideocam className="h-5 w-5 text-indigo-200" />
-                <span>{isSubmitting ? submittingText.primary : currentSubmitBtn.primary}</span>
-                <IoArrowForward className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </div>
-              <span className="text-xs font-normal opacity-90 font-arabic mt-0.5">
-                {isSubmitting ? submittingText.ar : currentSubmitBtn.ar}
-              </span>
-            </button>
-
-            {session.form_config?.allow_excuse && student && (
-              <button
-                type="button"
-                onClick={() => setShowExcuseModal(true)}
-                className="w-full flex flex-col items-center justify-center rounded-xl text-slate-600 hover:text-slate-900 py-2 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center gap-1.5 text-xs font-semibold">
-                  <IoDocumentText className="h-3.5 w-3.5 text-slate-500" />
-                  <span>{excuseBtnText.primary}</span>
-                </div>
-                <span className="text-[10px] text-slate-400 font-arabic mt-0.5">
-                  {excuseBtnText.ar}
-                </span>
-              </button>
-            )}
-          </form>
-        </div>
+        <AttendanceGateActiveForm
+          session={session}
+          formTitle={formTitle}
+          formDesc={formDesc}
+          activeLang={activeLang}
+          errorMessage={errorMessage}
+          student={student}
+          todayRecord={todayRecord}
+          onResetAccount={resetAccount}
+          remainingFields={remainingFields}
+          answers={answers}
+          onAnswerChange={handleAnswerChange}
+          phoneFieldId={phoneField.id}
+          isSearching={isSearching}
+          isSubmitting={isSubmitting}
+          onOpenExcuseModal={() => setShowExcuseModal(true)}
+          onSubmit={handleJoinZoom}
+        />
       </main>
 
       {showExcuseModal && student && (

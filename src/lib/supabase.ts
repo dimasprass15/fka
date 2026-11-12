@@ -49,6 +49,7 @@ export interface AttendanceSession {
   };
   is_active: boolean;
   teacher_pin?: string;
+  teacher_phones?: string[] | null;
   teacher_joined_at?: string | null;
   teacher_join_date?: string | null;
   created_at: string;
@@ -56,6 +57,7 @@ export interface AttendanceSession {
     id: string;
     name: string;
     teacher_name?: string;
+    teacher_phones?: string[] | null;
     category?: string;
     days_label?: string;
     utc_hour?: number;
