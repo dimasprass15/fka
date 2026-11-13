@@ -5,6 +5,11 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+export interface SessionSupervisor {
+  name: string;
+  phone: string;
+}
+
 export interface DynamicFormField {
   id: string;
   label: string;
@@ -50,6 +55,7 @@ export interface AttendanceSession {
   is_active: boolean;
   teacher_pin?: string;
   teacher_phones?: string[] | null;
+  supervisors?: SessionSupervisor[] | null;
   teacher_joined_at?: string | null;
   teacher_join_date?: string | null;
   created_at: string;
@@ -58,6 +64,7 @@ export interface AttendanceSession {
     name: string;
     teacher_name?: string;
     teacher_phones?: string[] | null;
+    supervisors?: SessionSupervisor[] | null;
     category?: string;
     days_label?: string;
     utc_hour?: number;

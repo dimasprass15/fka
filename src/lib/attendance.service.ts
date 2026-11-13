@@ -3,7 +3,14 @@ import {
   type AttendanceSession,
   type Student,
   type AttendanceRecord,
+  type DynamicFormField,
 } from './supabase';
+
+export const DEFAULT_DYNAMIC_FIELDS: DynamicFormField[] = [
+  { id: 'phone', label: 'Nomor WhatsApp Santri', type: 'phone', required: true, is_student_phone: true },
+  { id: 'name', label: 'Nama Lengkap Santri', type: 'text', required: true, is_student_name: true },
+  { id: 'gender', label: 'Kategori Santri', type: 'radio', options: ['Ikhwan (Laki-laki)', 'Akhwat (Perempuan)'], required: true },
+];
 
 /**
  * Records teacher presence directly on attendance_sessions.
@@ -145,3 +152,4 @@ export async function upsertStudentAndRecord(params: {
 
   return { student: studentObj, record: recordData as AttendanceRecord };
 }
+

@@ -6,7 +6,6 @@ import {
   getDualText,
   sanitizePhoneNumber,
   sanitizeInputText,
-  isTeacherPhoneNumber,
   type SupportedGateLang,
 } from '@/lib/attendance.utils';
 import {
@@ -16,7 +15,7 @@ import {
   type DynamicFormField,
 } from '@/lib/supabase';
 import {
-  recordTeacherAttendance,
+  DEFAULT_DYNAMIC_FIELDS,
   lookupStudentByPhone,
   checkStudentTodayAttendance,
   reconnectStudentAttendance,
@@ -26,22 +25,18 @@ import {
   evaluateScheduleWindow,
   type ScheduleWindowResult,
 } from '@/lib/schedule.utils';
+import { useAttendanceRoleDetection } from '@/hooks/useAttendanceRoleDetection';
 import AttendanceGateSuccess from './AttendanceGateSuccess';
 import AttendanceExcuseModal from './AttendanceExcuseModal';
 import AttendanceGateActiveForm from './AttendanceGateActiveForm';
 import { AttendanceGateHeader } from './AttendanceGateHeader';
 import AttendanceGateClosedView from './AttendanceGateClosedView';
 import TeacherGateView from './TeacherGateView';
+import SupervisorAutoLaunchView from './SupervisorAutoLaunchView';
 
 interface AttendanceGateViewProps {
   session: AttendanceSession;
 }
-
-const DEFAULT_FIELDS: DynamicFormField[] = [
-  { id: 'phone', label: 'Nomor WhatsApp Santri', type: 'phone', required: true, is_student_phone: true },
-  { id: 'name', label: 'Nama Lengkap Santri', type: 'text', required: true, is_student_name: true },
-  { id: 'gender', label: 'Kategori Santri', type: 'radio', options: ['Ikhwan (Laki-laki)', 'Akhwat (Perempuan)'], required: true },
-];
 
 export default function AttendanceGateView({ session }: AttendanceGateViewProps) {
   const { language, setLanguage } = useLanguage();
@@ -49,8 +44,10 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
   const titleSuffix = getDualText('titleSuffix', activeLang);
 
   const cfg = session.form_config;
-  const fields: DynamicFormField[] = cfg?.fields && cfg.fields.length > 0 ? cfg.fields : DEFAULT_FIELDS;
-  const phoneField = fields.find((f) => f.is_student_phone || f.type === 'phone' || f.id === 'phone') || fields[0];
+  const fields: DynamicFormField[] =
+    cfg?.fields && cfg.fields.length > 0 ? cfg.fields : DEFAULT_DYNAMIC_FIELDS;
+  const phoneField =
+    fields.find((f) => f.is_student_phone || f.type === 'phone' || f.id === 'phone') || fields[0];
   const nameField = fields.find((f) => f.is_student_name || f.id === 'name') || fields[1];
 
   const computeSchedule = useCallback((): ScheduleWindowResult | null => {
@@ -79,22 +76,12 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
   const [errorMessage, setErrorMessage] = useState('');
   const [isSuccessView, setIsSuccessView] = useState(false);
   const [showExcuseModal, setShowExcuseModal] = useState(false);
-  const [isTeacherDetected, setIsTeacherDetected] = useState(false);
+
+  const { isTeacherDetected, detectedSupervisor, checkSpecialRole } =
+    useAttendanceRoleDetection(session);
 
   const formTitle = cfg?.form_title || session.title;
   const formDesc = cfg?.form_description || cfg?.announcement;
-
-  const handleTeacherLogin = useCallback(
-    async (phone: string) => {
-      try {
-        localStorage.setItem(`fka_teacher_verified_${session.id}`, 'true');
-        localStorage.setItem(`fka_teacher_phone_${session.id}`, phone);
-      } catch {}
-      await recordTeacherAttendance(session.id);
-      setIsTeacherDetected(true);
-    },
-    [session.id]
-  );
 
   const checkTodayAttendance = useCallback(
     async (studentId: string): Promise<boolean> => {
@@ -132,11 +119,9 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
       const formatted = sanitizePhoneNumber(rawPhone);
       if (formatted.length < 9) return;
 
-      // Cek apakah nomor WA ini terdaftar sebagai nomor Pengampu / Syaikh
-      if (isTeacherPhoneNumber(rawPhone, session.teacher_phones, session.halaqahs?.teacher_phones)) {
-        await handleTeacherLogin(formatted);
-        return;
-      }
+      // Cek apakah nomor WA pengampu atau pengawas
+      const specialRole = await checkSpecialRole(formatted, rawPhone);
+      if (specialRole) return;
 
       setIsSearching(true);
       setErrorMessage('');
@@ -162,42 +147,28 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
         setIsSearching(false);
       }
     },
-    [checkTodayAttendance, phoneField.id, nameField, session, handleTeacherLogin]
+    [checkSpecialRole, phoneField.id, nameField, checkTodayAttendance]
   );
 
   useEffect(() => {
-    const savedGate = typeof window !== 'undefined' ? localStorage.getItem('fka_gate_lang') : null;
-    const targetLang = savedGate === 'EN' ? 'EN' : 'ID';
-    if (language !== targetLang) {
-      setLanguage(targetLang);
-    }
-    document.documentElement.setAttribute('dir', 'ltr');
-    document.documentElement.setAttribute('lang', targetLang.toLowerCase());
-  }, [language, setLanguage]);
-
-  useEffect(() => {
-    const saved = typeof window !== 'undefined' ? localStorage.getItem('fka_student_phone') : null;
-    if (saved) {
-      const sanitized = sanitizePhoneNumber(saved);
-      setAnswers((prev) => ({ ...prev, [phoneField.id]: sanitized }));
-      lookupPhone(sanitized);
-    }
+    try {
+      const savedPhone = localStorage.getItem('fka_student_phone');
+      if (savedPhone) {
+        setAnswers((prev) => ({ ...prev, [phoneField.id]: savedPhone }));
+        lookupPhone(savedPhone);
+      }
+    } catch {}
   }, [lookupPhone, phoneField.id]);
 
-  const handleSelectGateLang = (newLang: 'AR' | 'ID' | 'EN') => {
-    const valid = newLang === 'EN' ? 'EN' : 'ID';
-    setLanguage(valid);
-    if (typeof window !== 'undefined') localStorage.setItem('fka_gate_lang', valid);
-    document.documentElement.setAttribute('dir', 'ltr');
-    document.documentElement.setAttribute('lang', valid.toLowerCase());
-  };
-
-  const handleAnswerChange = (fieldId: string, value: string) => {
-    const clean = sanitizeInputText(value, 200, false);
-    setAnswers((prev) => ({ ...prev, [fieldId]: clean }));
+  const handleFieldChange = (fieldId: string, val: string) => {
+    setAnswers((prev) => ({ ...prev, [fieldId]: val }));
     if (fieldId === phoneField.id) {
-      if (clean.replace(/\D/g, '').length >= 9) lookupPhone(clean);
-      else setStudent(null);
+      const cleanDigits = val.replace(/\D/g, '');
+      if (cleanDigits.length >= 9) {
+        lookupPhone(val);
+      } else if (student) {
+        setStudent(null);
+      }
     }
   };
 
@@ -210,9 +181,9 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
       const rawPhone = answers[phoneField.id] || '';
       const formattedPhone = sanitizePhoneNumber(rawPhone);
 
-      // Cek apakah nomor pengampu sebelum validasi santri
-      if (isTeacherPhoneNumber(formattedPhone, session.teacher_phones, session.halaqahs?.teacher_phones)) {
-        await handleTeacherLogin(formattedPhone);
+      // Cek apakah nomor pengampu atau pengawas
+      const specialRole = await checkSpecialRole(formattedPhone, rawPhone);
+      if (specialRole) {
         setIsSubmitting(false);
         return;
       }
@@ -263,7 +234,6 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
 
       setStudent(updatedStudent);
       setTodayRecord(record);
-      localStorage.setItem('fka_student_phone', formattedPhone);
       setIsSuccessView(true);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Terjadi kesalahan sistem';
@@ -273,13 +243,24 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
     }
   };
 
+  const handleSelectGateLang = (lang: 'ID' | 'EN' | 'AR') => {
+    setLanguage(lang);
+  };
+
   const resetAccount = () => {
-    localStorage.removeItem('fka_student_phone');
+    try {
+      localStorage.removeItem('fka_student_phone');
+    } catch {}
     setStudent(null);
     setTodayRecord(null);
     setIsSuccessView(false);
     setAnswers({});
   };
+
+  // ── Render Case -1: Deteksi Nomor Pengawas -> Auto-Launch Zoom Pengawas ──────
+  if (detectedSupervisor) {
+    return <SupervisorAutoLaunchView session={session} supervisor={detectedSupervisor} />;
+  }
 
   // ── Render Case 0: Deteksi Nomor Pengampu -> Langsung Masuk Gerbang Pengajar ──
   if (isTeacherDetected) {
@@ -352,7 +333,7 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
           onResetAccount={resetAccount}
           remainingFields={remainingFields}
           answers={answers}
-          onAnswerChange={handleAnswerChange}
+          onAnswerChange={handleFieldChange}
           phoneFieldId={phoneField.id}
           isSearching={isSearching}
           isSubmitting={isSubmitting}
@@ -361,19 +342,22 @@ export default function AttendanceGateView({ session }: AttendanceGateViewProps)
         />
       </main>
 
+      <footer className="max-w-xl mx-auto w-full text-center text-xs text-slate-400 py-4">
+        SM-FK Presence Engine &bull; Fastabiqul Khairat Academy
+      </footer>
+
       {showExcuseModal && student && (
         <AttendanceExcuseModal
           session={session}
           student={student}
           lang={activeLang}
           onClose={() => setShowExcuseModal(false)}
-          onSubmitted={() => checkTodayAttendance(student.id)}
+          onSubmitted={() => {
+            setShowExcuseModal(false);
+            if (student) checkTodayAttendance(student.id);
+          }}
         />
       )}
-
-      <footer className="text-center text-xs text-slate-400 py-4 sm:py-6">
-        © {new Date().getFullYear()} Fastabiqul Khairat Academy. All rights reserved.
-      </footer>
     </div>
   );
 }

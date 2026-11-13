@@ -1,3 +1,5 @@
+import type { SessionSupervisor } from './supabase';
+
 /**
  * Pure utility functions for attendance gate, phone number sanitization,
  * Zoom deep-linking, and bilingual (ID/EN + Arabic Fushah) translations.
@@ -81,6 +83,38 @@ export function isTeacherPhoneNumber(
     if (cleanTp.length < 8) return false;
     return digits === cleanTp || digits.endsWith(cleanTp) || cleanTp.endsWith(digits);
   });
+}
+
+/**
+ * Checks whether an input phone number belongs to a registered supervisor (pengawas / musyrif).
+ * Returns the matching supervisor object if found, otherwise null.
+ */
+export function findMatchingSupervisor(
+  inputPhone: string,
+  sessionSupervisors?: SessionSupervisor[] | null,
+  halaqahSupervisors?: SessionSupervisor[] | null
+): SessionSupervisor | null {
+  if (!inputPhone) return null;
+  const digits = inputPhone.replace(/\D/g, '');
+  if (digits.length < 8) return null;
+
+  const supervisors: SessionSupervisor[] = [
+    ...(sessionSupervisors || []),
+    ...(halaqahSupervisors || []),
+  ];
+
+  if (supervisors.length === 0) return null;
+
+  for (const s of supervisors) {
+    if (!s || !s.phone) continue;
+    const cleanPhone = s.phone.replace(/\D/g, '');
+    if (cleanPhone.length < 8) continue;
+    if (digits === cleanPhone || digits.endsWith(cleanPhone) || cleanPhone.endsWith(digits)) {
+      return s;
+    }
+  }
+
+  return null;
 }
 
 // Re-export strings, bilingual dictionaries, and Arabic translation helpers
